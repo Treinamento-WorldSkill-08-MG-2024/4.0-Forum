@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gofor-little/env"
 )
@@ -27,6 +28,10 @@ func InitDatabase() *sql.DB {
 		fmt.Fprintf(os.Stderr, "failed to open db %s: %s", databaseAccessURL, err)
 		os.Exit(1)
 	}
+
+	db.SetConnMaxIdleTime(time.Minute * 5)
+	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(10)
 
 	return db
 }
