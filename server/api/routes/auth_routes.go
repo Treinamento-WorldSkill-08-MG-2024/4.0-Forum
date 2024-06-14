@@ -46,7 +46,9 @@ func loginRoute(context echo.Context) error {
 	// TODO - build token
 	token := buildToken(strconv.Itoa(user.ID), "10/10/10")
 
-	return context.JSON(http.StatusOK, lib.JsonResponse{Message: token})
+	return context.JSON(http.StatusOK, lib.JsonResponse{
+		Message: map[string]interface{}{"user": user, "token": token},
+	})
 }
 
 func registerRoute(context echo.Context) error {
