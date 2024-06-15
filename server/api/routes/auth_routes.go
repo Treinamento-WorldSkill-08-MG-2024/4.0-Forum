@@ -69,6 +69,11 @@ func forgotRoute(context echo.Context) error {
 	return errors.New("Not implemented")
 }
 
+const (
+	userIdBytesLength  uint8 = 4
+	expDateBytesLength uint8 = 25
+)
+
 /**
  * Authentication Proccess
  * - Store for each user a token with a certain validity that refers to a static user identifier data
@@ -85,6 +90,14 @@ func forgotRoute(context echo.Context) error {
  * hash layout sha256(user_id + exp_date) maybe? (+ hash(password || email || unique_id))
  */
 func buildToken(id string, exp_data string) string {
+	formatedId := fmt.Sprintf("%0*s", userIdBytesLength, id)
+	fmt.Println(formatedId)
+
 	// REVIEW - BASIC
+	tokenBuffer := new([30]rune)
+	for i, v := range id {
+		tokenBuffer[i] = v
+	}
+
 	return fmt.Sprintf("%s:%s", id, exp_data)
 }
