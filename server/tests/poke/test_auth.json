@@ -1,3 +1,11 @@
 {
-    "url": ""
+    "url": "http://localhost:1323/auth/login",
+    "method": "POST",
+    "headers": {
+        "Content-Type": "application/json"
+    },
+    "body": {
+       "name": "dani",
+       "password": "dani123"
+    }
 }
