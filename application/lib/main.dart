@@ -8,6 +8,7 @@ void main() {
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
 
+  // Use provider for authentication
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(

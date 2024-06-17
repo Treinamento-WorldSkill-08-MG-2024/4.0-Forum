@@ -1,5 +1,7 @@
-import 'package:application/screens/forgot_password_screen.dart';
-import 'package:application/screens/register_screen.dart';
+import 'package:application/modules/auth_modules.dart';
+import 'package:application/screens/auth/forgot_password_screen.dart';
+import 'package:application/screens/auth/register_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -13,6 +15,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
+  final _authHandler = AuthHandler();
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +50,21 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _onSubmit() {
+  void _onSubmit() async {
     _formKey.currentState!.save();
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    try {
+      final user = await _authHandler.login(
+          _emailController.text, _passwordController.text);
+      
+      if (kDebugMode) {
+        print(user);
+      }
+    } catch (e) {
+//
+    }
   }
 }
