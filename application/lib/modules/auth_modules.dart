@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -29,20 +30,29 @@ class UserModelFields {
 }
 
 class AuthHandler {
-  static const _kBaseURL = "http://10.0.2.2:1323";
+  static const _kBaseURL = "http://10.0.2.2:1323/auth";
 
   Future<UserModel> login(String email, String password) async {
     final response = await http.Client().post(
-      Uri.parse("$_kBaseURL/auth/login"),
+      Uri.parse("$_kBaseURL/login"),
+      headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'name': email, 'password': password}),
     );
+
+    final bodyData = jsonDecode(response.body) as Map<String, dynamic>;
+    assert(bodyData.containsKey("message"), "Login response does not contain message key");
+
+    final data = bodyData['message'];
     if (response.statusCode != 200) {
+      if (kDebugMode) {
+        print(data['message']);
+      }
+
       throw Exception("Falha ao fazer login");
     }
 
     final prefs = await SharedPreferences.getInstance();
 
-    final data = jsonDecode(response.body) as Map<String, dynamic>;
     assert(data.containsKey("token"), "Login response does not contain token key");
     assert(data.containsKey("user"), "Login response does not contain user key");
 
@@ -53,7 +63,7 @@ class AuthHandler {
   }
 
   Future<bool> isAuthenticated() async {
-    final response = await http.Client().post(Uri.parse('$_kBaseURL/auth'));
+    final response = await http.Client().post(Uri.parse(_kBaseURL));
     if (response.statusCode != 200) {
       throw Exception("Falha ao autentiar usuário");
     }
@@ -64,7 +74,7 @@ class AuthHandler {
 
   Future<bool> register() async {
     final response =
-        await http.Client().get(Uri.parse("$_kBaseURL/auth/register"));
+        await http.Client().get(Uri.parse("$_kBaseURL/register"));
     if (response.statusCode != 201) {
       throw Exception("Falha ao registrar usuário");
     }
