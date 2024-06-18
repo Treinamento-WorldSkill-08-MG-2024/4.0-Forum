@@ -38,7 +38,7 @@ func (user *User) QueryUserByName(db *sql.DB, name string) (bool, error) {
 }
 
 func (user User) InsertNewUser(db *sql.DB) (int64, error) {
-	insertResult, err := db.ExecContext(context.Background(), "INSERT INTO users VALUES (NULL, ?, ?, ?)", user.Name, user.Password, user.Email)
+	insertResult, err := db.ExecContext(context.Background(), `INSERT INTO users VALUES (NULL, ?, ?, ?)`, user.Name, user.Password, user.Email)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to insert user: %s\n", err)
 
@@ -61,7 +61,7 @@ func QueryUsers(db *sql.DB) ([]User, error) {
 	rows, err := db.Query("SELECT * FROM users")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to execue query: %v\n", err)
-		os.Exit(1)
+		return nil, err
 	}
 
 	defer rows.Close()

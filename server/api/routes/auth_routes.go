@@ -17,10 +17,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-var (
-	internal_db **sql.DB
-	key         string
-)
+var key string
 
 func AuthRouter(db *sql.DB, e *echo.Echo) {
 	internal_db = &db
