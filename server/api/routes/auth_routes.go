@@ -18,12 +18,12 @@ import (
 )
 
 var (
-	internal_db *sql.DB
+	internal_db **sql.DB
 	key         string
 )
 
 func AuthRouter(db *sql.DB, e *echo.Echo) {
-	internal_db = db
+	internal_db = &db
 
 	key = env.Get("AUTH_KEY", "-1")
 	if strings.Compare(key, "-1") == 0 {
@@ -46,7 +46,7 @@ func loginRoute(context echo.Context) error {
 
 	reqPassword := user.Password
 
-	foundUser, err := user.QueryUserByName(internal_db, user.Name)
+	foundUser, err := user.QueryUserByName(*internal_db, user.Name)
 	if err != nil {
 		return context.JSON(http.StatusInternalServerError, lib.JsonResponse{Message: "Failed to query user data"})
 	}
@@ -77,7 +77,7 @@ func registerRoute(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, lib.JsonResponse{Message: "Invalid request body"})
 	}
 
-	id, err := user.InsertNewUser(internal_db)
+	id, err := user.InsertNewUser(*internal_db)
 	if err != nil {
 		return context.JSON(http.StatusInternalServerError, lib.JsonResponse{Message: "Failed to add user into database"})
 	}

@@ -8,9 +8,10 @@ import (
 )
 
 type User struct {
-	ID       int    `json:"-"`
-	Name     string `json:"name"`
-	Password string `json:"password"`
+	ID       int    `json:"-" query:"id"`
+	Name     string `json:"name" query:"name"`
+	Email    string `json:"email" query:"email"`
+	Password string `json:"password" query:"password"`
 }
 
 func (user *User) QueryUserByName(db *sql.DB, name string) (bool, error) {
@@ -24,7 +25,7 @@ func (user *User) QueryUserByName(db *sql.DB, name string) (bool, error) {
 	defer rows.Close()
 
 	if rows.Next() {
-		if err := rows.Scan(&user.ID, &user.Name, &user.Password); err != nil {
+		if err := rows.Scan(&user.ID, &user.Name, &user.Password, &user.Email); err != nil {
 			fmt.Fprintf(os.Stderr, "Error scanning row: %s\n", err)
 
 			return false, err
@@ -37,7 +38,7 @@ func (user *User) QueryUserByName(db *sql.DB, name string) (bool, error) {
 }
 
 func (user User) InsertNewUser(db *sql.DB) (int64, error) {
-	insertResult, err := db.ExecContext(context.Background(), "INSERT INTO users VALUES (NULL, ?, ?)", user.Name, user.Password)
+	insertResult, err := db.ExecContext(context.Background(), "INSERT INTO users VALUES (NULL, ?, ?, ?)", user.Name, user.Password, user.Email)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to insert user: %s\n", err)
 
@@ -68,7 +69,7 @@ func QueryUsers(db *sql.DB) ([]User, error) {
 	for rows.Next() {
 		var user User
 
-		if err := rows.Scan(&user.ID, &user.Name, &user.Password); err != nil {
+		if err := rows.Scan(&user.ID, &user.Name, &user.Password, &user.Email); err != nil {
 			fmt.Println("Error scanning row: ")
 
 			return []User{}, err
