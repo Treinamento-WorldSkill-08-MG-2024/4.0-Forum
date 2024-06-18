@@ -43,8 +43,7 @@ class PublicationHandler {
     );
 
     final bodyData = jsonDecode(response.body) as Map<String, dynamic>;
-    assert(bodyData.containsKey("message"),
-        "Response does not contain message key");
+    assert(bodyData.containsKey("message"), "Response does not contain message key");
 
     final data = bodyData['message'] as List<dynamic>;
     if (response.statusCode != 200) {
@@ -55,9 +54,6 @@ class PublicationHandler {
       throw Exception(data);
     }
 
-    return data.map((value) {
-      print(value);
-      return PostModel.fromJson(value);
-    }).toList();
+    return data.map((item) => PostModel.fromJson(item)).toList();
   }
 }

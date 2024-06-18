@@ -2,6 +2,7 @@ import 'package:application/components/arch_bottom_bar.dart';
 import 'package:application/components/post_card.dart';
 import 'package:application/design/styles.dart';
 import 'package:application/modules/publication_modules.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -57,7 +58,10 @@ class _HomeScreenState extends State<HomeScreen> {
               //   builder: (_) => Toasts.failureDialog("message"),
               // );
 
-              print(snapshot.error);
+              if (kDebugMode) {
+                print(snapshot.error);
+              }
+              
               return Container();
             }
 

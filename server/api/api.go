@@ -17,6 +17,7 @@ func InitAPI(db *sql.DB) {
 
 	routes.UsersRouter(db, e)
 	routes.AuthRouter(db, e)
+	routes.PublicationsRouter(db, e)
 
 	e.Logger.Fatal(e.Start(":1323"))
 }

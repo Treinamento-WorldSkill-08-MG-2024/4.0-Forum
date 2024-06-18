@@ -21,7 +21,7 @@ func PublicationsRouter(db *sql.DB, e *echo.Echo) {
 
 func feedRoute(context echo.Context) error {
 	page, err := strconv.Atoi(context.Param("page"))
-	if err != nil || page <= 0 {
+	if err != nil {
 		fmt.Fprintf(os.Stderr, "invalid page parameter: %s\n", err)
 
 		return context.JSON(http.StatusBadRequest, lib.JsonResponse{Message: "Invalid page parameter"})
