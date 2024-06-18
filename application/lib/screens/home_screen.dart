@@ -1,6 +1,7 @@
 import 'package:application/components/arch_bottom_bar.dart';
 import 'package:application/components/post_card.dart';
 import 'package:application/design/styles.dart';
+import 'package:application/modules/publication_modules.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -11,6 +12,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late final Future<List<PostModel>> _posts;
+
+  @override
+  void initState() {
+    _posts = PublicationHandler().loadFeed(0);
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,15 +45,41 @@ class _HomeScreenState extends State<HomeScreen> {
           )
         ],
       ),
-      body: const SafeArea(
-        child: Column(
-          children: [
-            PostCard(),
-            PostCard(),
-          ],
+      body: SafeArea(
+        child: FutureBuilder<List<PostModel>>(
+          future: _posts,
+          builder: (context, snapshot) {
+            // TODO - Screen skeleton
+
+            if (snapshot.hasError) {
+              // showDialog(
+              //   context: context,
+              //   builder: (_) => Toasts.failureDialog("message"),
+              // );
+
+              print(snapshot.error);
+              return Container();
+            }
+
+            if (snapshot.hasData &&
+                snapshot.connectionState == ConnectionState.done) {
+              return _feed();
+            }
+
+            return const CircularProgressIndicator();
+          },
         ),
       ),
       bottomNavigationBar: const ArchBottomBar(),
+    );
+  }
+
+  Widget _feed() {
+    return const Column(
+      children: [
+        PostCard(),
+        PostCard(),
+      ],
     );
   }
 }
