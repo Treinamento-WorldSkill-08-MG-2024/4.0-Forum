@@ -42,13 +42,11 @@ class AuthHandler {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'name': email, 'password': password}),
     );
-    
 
     final bodyData = jsonDecode(response.body) as Map<String, dynamic>;
-    assert(bodyData.containsKey("message"),
-        "Login response does not contain message key");
+    assert(bodyData.containsKey("message"), "Login response does not contain message key");
 
-    final data = bodyData['message'] as Map<String, dynamic>;
+    final data = bodyData['message'];
     if (response.statusCode != 200) {
       if (kDebugMode) {
         print(data);
@@ -57,10 +55,8 @@ class AuthHandler {
       throw Exception(data);
     }
 
-    assert(
-        data.containsKey("token"), "Login response does not contain token key");
-    assert(
-        data.containsKey("user"), "Login response does not contain user key");
+    assert(data.containsKey("token"), "Login response does not contain token key");
+    assert(data.containsKey("user"), "Login response does not contain user key");
     final token = data["token"] as String;
 
     final prefs = await SharedPreferences.getInstance();
