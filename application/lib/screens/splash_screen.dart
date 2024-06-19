@@ -26,7 +26,7 @@ class _SplashScreenState extends State<SplashScreen> {
     _helloWorld()
         .then(
           (_) => Navigator.of(context)
-              .push(MaterialPageRoute(builder: (_) => const LoginScreen())),
+              .pushReplacement(MaterialPageRoute(builder: (_) => const LoginScreen())),
         )
         .catchError((error) { 
           setState(() => _apiConnectionFailed = true);

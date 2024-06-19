@@ -1,4 +1,6 @@
+import 'package:application/components/arch_form_field.dart';
 import 'package:application/components/toats.dart';
+import 'package:application/design/styles.dart';
 import 'package:application/modules/auth_modules.dart';
 import 'package:application/screens/auth/forgot_password_screen.dart';
 import 'package:application/screens/auth/register_screen.dart';
@@ -23,29 +25,112 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Form(
-          key: _formKey,
+      appBar: AppBar(
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => const RegisterScreen()),
+            ),
+            child: const Text(
+              "sign up",
+              style: TextStyle(
+                fontSize: 15,
+                color: Styles.orange,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          )
+        ],
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(Styles.defaultSpacing),
           child: Column(
             children: [
-              TextFormField(
-                controller: _emailController,
-              ),
-              TextFormField(
-                controller: _passwordController,
-              ),
-              OutlinedButton(onPressed: _onSubmit, child: const Text("Entrar")),
-              TextButton(
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => ForgotPasswordScreen()),
+              const Text(
+                "Insira suas informações de login",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
                 ),
-                child: const Text("Esqueci minha senha"),
               ),
-              TextButton(
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const RegisterScreen()),
+              const SizedBox(height: Styles.defaultSpacing * 4),
+              Expanded(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ArchFormField(
+                            controller: _emailController,
+                            hintText: "Email",
+                          ),
+                          const SizedBox(height: Styles.defaultSpacing),
+                          ArchFormField(
+                            controller: _passwordController,
+                            hintText: "Senha",
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => ForgotPasswordScreen(),
+                              ),
+                            ),
+                            child: const Text(
+                              "Esqueci minha senha",
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Styles.orange,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          bottom: Styles.defaultSpacing * 2,
+                        ),
+                        child: Column(
+                          children: [
+                            const Text(
+                              "Ao continuar, você estará aceitando nossos termos e condições do usuário.",
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: Styles.defaultSpacing),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: FilledButton(
+                                    onPressed: _onSubmit,
+                                    style: FilledButton.styleFrom(
+                                      backgroundColor: Styles.orange,
+                                    ),
+                                    child: const Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 16),
+                                      child: Text(
+                                        "Entrar",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                child: const Text("Não possuo cadastro"),
               ),
             ],
           ),
@@ -91,8 +176,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
       showDialog(
         context: context,
-        builder: (_) =>
-            Toasts.failureDialog("Houve um erro ao realizar o login: ${error.toString()}"),
+        builder: (_) => Toasts.failureDialog(
+            "Houve um erro ao realizar o login: ${error.toString()}"),
       );
     }
   }

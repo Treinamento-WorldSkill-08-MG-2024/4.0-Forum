@@ -61,7 +61,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
             if (snapshot.hasData &&
                 snapshot.connectionState == ConnectionState.done) {
-                  print(snapshot.data![0].authorID);
               return _feed(snapshot.data!);
             }
 
@@ -76,9 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _feed(List<PostModel> posts) {
     return ListView.builder(
       itemCount: posts.length,
-      itemBuilder: (_, index) => Column(
-        children: [PostCard(posts[index])],
-      ),
+      itemBuilder: (_, index) => PostCard(posts[index]),
     );
   }
 }
