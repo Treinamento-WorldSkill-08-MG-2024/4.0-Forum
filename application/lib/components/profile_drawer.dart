@@ -1,5 +1,8 @@
+import 'package:application/modules/auth_modules.dart';
 import 'package:application/screens/auth/login_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileDrawer extends StatelessWidget {
   const ProfileDrawer({super.key});
@@ -23,7 +26,26 @@ class ProfileDrawer extends StatelessWidget {
                 content: Row(
                   children: [
                     TextButton(
-                      onPressed: () {
+                      onPressed: () async {
+                        try {
+                          final prefs = await SharedPreferences.getInstance();
+                          final ok = await prefs.remove(UserModelFields.token);
+
+                          if (!ok) {
+                            throw Exception("Failed to logout");
+                          }
+                        } catch (error) {
+                          if (kDebugMode) {
+                            print(error);
+                          }
+
+                          // TODO - show error dialog
+                        }
+
+                        if (!context.mounted) {
+                          return;
+                        }
+
                         Navigator.of(context).pop();
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
