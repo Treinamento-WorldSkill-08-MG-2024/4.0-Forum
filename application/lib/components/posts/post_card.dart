@@ -17,12 +17,12 @@ class PostCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            PostHeader(_postModel.authorID),
+            PostHeader(_postModel),
             const SizedBox(height: Styles.defaultSpacing),
 
             // ANCHOR - Post Content
-            const Text(
-              '"What kind of math do you do?" spiel',
+            Text(
+              _postModel.title,
               style: TextStyle(fontSize: 18),
             ),
             const Text(

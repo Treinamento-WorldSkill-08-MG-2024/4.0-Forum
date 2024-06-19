@@ -13,17 +13,68 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late final Future<List<PostModel>> _posts;
+  final _publicationHandler = PublicationHandler();
+  final _nextPageTrigger = .8;
+  final _postPerRequest = 4;
+
+  late final List<PostModel> _posts;
+  late final ScrollController _scrollController;
+  late Future<List<PostModel>> _postsFuture;
+  late bool _isLastPage;
+  late int _pageNumber;
+
+  var _isLoading = true;
 
   @override
   void initState() {
-    _posts = PublicationHandler().loadFeed(0);
+    _scrollController = ScrollController();
+    _posts = List<PostModel>.empty(growable: true);
 
+    _isLastPage = true;
+    _pageNumber = 0;
+
+    _loadPosts();
     super.initState();
   }
 
   @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _loadPosts() {
+    _isLoading = true;
+
+    _postsFuture = _publicationHandler.loadFeed(_pageNumber);
+    _postsFuture
+        .then((posts) => setState(() {
+              _isLastPage = posts.length < _postPerRequest;
+              _pageNumber += 1;
+
+              _posts.addAll(posts);
+
+              _isLoading = false;
+            }))
+        .catchError((error) {
+      if (kDebugMode) {
+        print(error);
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    _scrollController.addListener(() {
+      final nextPageTriggerInPixels =
+          _nextPageTrigger * _scrollController.position.maxScrollExtent;
+
+      if (_scrollController.position.pixels > nextPageTriggerInPixels &&
+          !_isLoading) {
+        _loadPosts();
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(
         shape: const Border.symmetric(
@@ -47,35 +98,27 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: SafeArea(
-        child: FutureBuilder<List<PostModel>>(
-          future: _posts,
-          builder: (context, snapshot) {
-            // TODO - Screen skeleton
-            if (snapshot.hasError) {
-              if (kDebugMode) {
-                print(snapshot.error);
-              }
-
-              return Container();
-            }
-
-            if (snapshot.hasData &&
-                snapshot.connectionState == ConnectionState.done) {
-              return _feed(snapshot.data!);
-            }
-
-            return const CircularProgressIndicator();
-          },
+        child: Column(
+          children: [_feed()],
         ),
       ),
       bottomNavigationBar: const ArchBottomBar(),
     );
   }
 
-  Widget _feed(List<PostModel> posts) {
-    return ListView.builder(
-      itemCount: posts.length,
-      itemBuilder: (_, index) => PostCard(posts[index]),
+  Widget _feed() {
+    return Expanded(
+      child: ListView.builder(
+        controller: _scrollController,
+        itemCount: _posts.length + (_isLastPage ? 0 : 1),
+        itemBuilder: (_, index) {
+          if (index == _posts.length) {
+            return const CircularProgressIndicator();
+          }
+
+          return PostCard(_posts[index]);
+        },
+      ),
     );
   }
 }

@@ -1,12 +1,13 @@
 import 'package:application/design/styles.dart';
 import 'package:application/modules/auth_modules.dart';
+import 'package:application/modules/publications_modules.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class PostHeader extends StatefulWidget {
-  final int id;
+  final PostModel post;
 
-  const PostHeader(this.id, {super.key});
+  const PostHeader(this.post, {super.key});
 
   @override
   State<PostHeader> createState() => _PostHeaderState();
@@ -17,7 +18,7 @@ class _PostHeaderState extends State<PostHeader> {
 
   @override
   void initState() {
-    _authorFuture = UserHandler().getUserData(widget.id);
+    _authorFuture = UserHandler().getUserData(widget.post.authorID);
 
     super.initState();
   }
@@ -73,9 +74,9 @@ class _PostHeaderState extends State<PostHeader> {
           ),
         ),
         const SizedBox(width: Styles.defaultSpacing),
-        const Text(
-          "14h",
-          style: TextStyle(color: Color.fromARGB(184, 36, 36, 36)),
+        Text(
+          widget.post.createdAt,
+          style: const TextStyle(color: Color.fromARGB(184, 36, 36, 36)),
         ),
       ],
     );
