@@ -34,7 +34,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
             children: [
               Column(
                 children: [
-                  const Text("Bem vindo ao Forum! Comece Insindo suas informações cadastrais"),
+                  const Text(
+                    "Bem vindo ao Forum!",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Text("Comece inserindo suas informações cadastrais"),
+                  const SizedBox(height: Styles.defaultSpacing * 4),
                   Form(
                     key: _formkey,
                     child: Column(
@@ -59,30 +67,40 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ],
               ),
               Padding(
-                padding: const EdgeInsets.only(bottom: Styles.defaultSpacing * 2),
-                child: Row(
+                padding:
+                    const EdgeInsets.only(bottom: Styles.defaultSpacing * 2),
+                child: Column(
                   children: [
-                    Expanded(
-                      child: FilledButton(
-                        onPressed: _onSubmit,
-                        style: FilledButton.styleFrom(
-                          backgroundColor: Styles.orange,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          child: Text(
-                            "Entrar",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                    const Text(
+                      "Ao continuar, você estará aceitando nossos termos e condições do usuário.",
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: Styles.defaultSpacing),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: FilledButton(
+                            onPressed: _onSubmit,
+                            style: FilledButton.styleFrom(
+                              backgroundColor: Styles.orange,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                              child: Text(
+                                "Continuar",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 ),

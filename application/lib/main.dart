@@ -14,7 +14,7 @@ class MainApp extends StatelessWidget {
 
   // Use provider for authentication
   @override
-  Widget build(BuildContext context) {  
+  Widget build(BuildContext context) {
     return const MaterialApp(
       home: SplashScreen(),
     );
