@@ -1,7 +1,7 @@
 import 'package:application/components/arch_bottom_bar.dart';
-import 'package:application/components/post_card.dart';
+import 'package:application/components/posts/post_card.dart';
 import 'package:application/design/styles.dart';
-import 'package:application/modules/publication_modules.dart';
+import 'package:application/modules/publications_modules.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -51,23 +51,18 @@ class _HomeScreenState extends State<HomeScreen> {
           future: _posts,
           builder: (context, snapshot) {
             // TODO - Screen skeleton
-
             if (snapshot.hasError) {
-              // showDialog(
-              //   context: context,
-              //   builder: (_) => Toasts.failureDialog("message"),
-              // );
-
               if (kDebugMode) {
                 print(snapshot.error);
               }
-              
+
               return Container();
             }
 
             if (snapshot.hasData &&
                 snapshot.connectionState == ConnectionState.done) {
-              return _feed();
+                  print(snapshot.data![0].authorID);
+              return _feed(snapshot.data!);
             }
 
             return const CircularProgressIndicator();
@@ -78,12 +73,12 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _feed() {
-    return const Column(
-      children: [
-        PostCard(),
-        PostCard(),
-      ],
+  Widget _feed(List<PostModel> posts) {
+    return ListView.builder(
+      itemCount: posts.length,
+      itemBuilder: (_, index) => Column(
+        children: [PostCard(posts[index])],
+      ),
     );
   }
 }

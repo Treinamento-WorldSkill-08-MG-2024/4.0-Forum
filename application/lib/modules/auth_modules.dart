@@ -4,30 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class UserModel {
-  final String name;
-  final String email;
-  final String password;
-
-  String? authToken;
-
-  UserModel(this.name, this.email, this.password, {this.authToken});
-  factory UserModel.fromJson(Map<String, dynamic> json, {String? token}) {
-    return switch (json) {
-      {
-        'name': String name,
-        'email': String email,
-        'password': String password,
-      } =>
-        UserModel(name, email, password, authToken: token),
-      _ => throw const FormatException("Fail to convert json to user model")
-    };
-  }
-
-  Map<String, dynamic> toJson() {
-    return {'name': name, 'email': email, 'password': password};
-  }
-}
+part './user_module.dart';
 
 class UserModelFields {
   static const token = "auth-token";

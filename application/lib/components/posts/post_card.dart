@@ -1,9 +1,13 @@
+import 'package:application/components/posts/post_header.dart';
 import 'package:application/design/styles.dart';
+import 'package:application/modules/publications_modules.dart';
 import 'package:flutter/material.dart';
 
 class PostCard extends StatelessWidget {
-  const PostCard({super.key});
+  final PostModel _postModel;
 
+  const PostCard(this._postModel, {super.key});
+  
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -13,42 +17,7 @@ class PostCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    CircleAvatar(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(30.0),
-                        child: Image.network(
-                          'https://images.unsplash.com/photo-1712847333364-296afd7ba69a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w0Mzc0NDd8MXwxfGFsbHwxfHx8fHx8Mnx8MTcxODcxMjI1OHw&ixlib=rb-4.0.3&q=85&q=85&fmt=jpg&crop=entropy&cs=tinysrgb&w=450',
-                          width: 120,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: Styles.defaultSpacing),
-                    const Text(
-                      "Carlos Anãonelli",
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Styles.black,
-                          fontSize: 16),
-                    ),
-                    const SizedBox(width: Styles.defaultSpacing),
-                    const Text(
-                      "14h",
-                      style: TextStyle(color: Color.fromARGB(184, 36, 36, 36)),
-                    ),
-                  ],
-                ),
-                PopupMenuButton(
-                  itemBuilder: (_) =>
-                      [const PopupMenuItem(child: Text("item"))],
-                )
-              ],
-            ),
-
+            PostHeader(_postModel.authorID),
             const SizedBox(height: Styles.defaultSpacing),
 
             // ANCHOR - Post Content
