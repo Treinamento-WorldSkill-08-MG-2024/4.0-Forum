@@ -1,3 +1,4 @@
+import 'package:application/screens/new_post_screen.dart';
 import 'package:flutter/material.dart';
 
 class ArchBottomBar extends StatefulWidget {
@@ -10,6 +11,30 @@ class ArchBottomBar extends StatefulWidget {
 class _ArchBottomBarState extends State<ArchBottomBar> {
   @override
   Widget build(BuildContext context) {
-    return const Text("r");
+    return BottomNavigationBar(
+      selectedFontSize: 0,
+      unselectedFontSize: 0,
+      currentIndex: 0,
+      items: const [
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: ""),
+        BottomNavigationBarItem(icon: Icon(Icons.add), label: ""),
+        BottomNavigationBarItem(icon: Icon(Icons.person_2_outlined), label: ""),
+      ],
+      onTap: (value) {
+        switch (value) {
+          case 1:
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (_) => const NewPostScreen()));
+            break;
+
+          case 2:
+            Scaffold.of(context).openDrawer();
+            break;
+
+          case _:
+            break;
+        }
+      },
+    );
   }
 }

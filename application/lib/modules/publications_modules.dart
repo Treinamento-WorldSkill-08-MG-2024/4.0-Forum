@@ -4,21 +4,23 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 class PostModel {
+  final int? id;
   final String title;
   final bool published;
   final String createdAt;
   final int authorID;
 
-  PostModel(this.title, this.published, this.createdAt, this.authorID);
+  PostModel(this.id, this.title, this.published, this.createdAt, this.authorID);
   factory PostModel.fromJson(Map<String, dynamic> json) {
     return switch (json) {
       {
+        'id': int id,
         'title': String title,
         'published': bool published,
         'created-at': String createdAt,
         'author-id': int authorID,
       } =>
-        PostModel(title, published, createdAt, authorID),
+        PostModel(id, title, published, createdAt, authorID),
       _ => throw const FormatException("Failed to convert json to post model")
     };
   }

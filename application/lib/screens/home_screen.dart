@@ -1,5 +1,6 @@
 import 'package:application/components/arch_bottom_bar.dart';
 import 'package:application/components/posts/post_card.dart';
+import 'package:application/components/profile_drawer.dart';
 import 'package:application/design/styles.dart';
 import 'package:application/modules/publications_modules.dart';
 import 'package:flutter/foundation.dart';
@@ -91,7 +92,12 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
                 const SizedBox(width: Styles.defaultSpacing),
-                const Icon(Icons.person_2_outlined)
+                Builder(builder: (context) {
+                  return IconButton(
+                    onPressed: () => Scaffold.of(context).openDrawer(),
+                    icon: const Icon(Icons.person_2_outlined),
+                  );
+                })
               ],
             ),
           )
@@ -102,6 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [_feed()],
         ),
       ),
+      drawer: const ProfileDrawer(),
       bottomNavigationBar: const ArchBottomBar(),
     );
   }
@@ -113,7 +120,10 @@ class _HomeScreenState extends State<HomeScreen> {
         itemCount: _posts.length + (_isLastPage ? 0 : 1),
         itemBuilder: (_, index) {
           if (index == _posts.length) {
-            return const CircularProgressIndicator();
+            return const Center(
+              child: Text(
+                  "Não encontramos mais posts ou ainda estão sendo carregados"),
+            );
           }
 
           return PostCard(_posts[index]);

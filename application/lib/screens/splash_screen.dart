@@ -25,6 +25,13 @@ class _SplashScreenState extends State<SplashScreen> {
       throw Exception("Failed to perform first connection");
     }
 
+    final token = prefs.get(UserModelFields.token);
+    if (token == null) {
+      return null;
+    }
+
+    // TODO - Authnetiate user then redirect him to the home screen
+
     return prefs.get(UserModelFields.token);
   }
 
