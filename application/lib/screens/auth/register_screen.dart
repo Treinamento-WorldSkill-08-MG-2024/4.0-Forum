@@ -1,4 +1,6 @@
+import 'package:application/components/arch_form_field.dart';
 import 'package:application/components/toats.dart';
+import 'package:application/design/styles.dart';
 import 'package:application/modules/auth_modules.dart';
 import 'package:application/screens/auth/login_screen.dart';
 import 'package:flutter/material.dart';
@@ -24,21 +26,67 @@ class _RegisterScreenState extends State<RegisterScreen> {
       appBar: AppBar(
         leading: BackButton(onPressed: () => Navigator.of(context).pop()),
       ),
-      body: Center(
-        child: Form(
-          key: _formkey,
+      body: Padding(
+        padding: const EdgeInsets.all(Styles.defaultSpacing),
+        child: SafeArea(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              TextFormField(
-                controller: _nameController,
+              Column(
+                children: [
+                  const Text("Bem vindo ao Forum! Comece Insindo suas informações cadastrais"),
+                  Form(
+                    key: _formkey,
+                    child: Column(
+                      children: [
+                        ArchFormField(
+                          hintText: "Nome",
+                          controller: _nameController,
+                        ),
+                        const SizedBox(height: Styles.defaultSpacing),
+                        ArchFormField(
+                          hintText: "Email",
+                          controller: _emailController,
+                        ),
+                        const SizedBox(height: Styles.defaultSpacing),
+                        ArchFormField(
+                          hintText: "Senha",
+                          controller: _passwordController,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              TextFormField(
-                controller: _emailController,
+              Padding(
+                padding: const EdgeInsets.only(bottom: Styles.defaultSpacing * 2),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: _onSubmit,
+                        style: FilledButton.styleFrom(
+                          backgroundColor: Styles.orange,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          child: Text(
+                            "Entrar",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              TextFormField(
-                controller: _passwordController,
-              ),
-              OutlinedButton(onPressed: _onSubmit, child: const Text("Entrar")),
             ],
           ),
         ),

@@ -28,7 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
       appBar: AppBar(
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pushReplacement(
+            onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const RegisterScreen()),
             ),
             child: const Text(
@@ -108,6 +108,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                     onPressed: _onSubmit,
                                     style: FilledButton.styleFrom(
                                       backgroundColor: Styles.orange,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
                                     ),
                                     child: const Padding(
                                       padding:
@@ -162,7 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
 
-      Navigator.of(context).push(
+      Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const HomeScreen()),
       );
 
