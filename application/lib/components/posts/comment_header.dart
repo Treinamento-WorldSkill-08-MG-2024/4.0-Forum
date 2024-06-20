@@ -4,21 +4,20 @@ import 'package:application/modules/publications_modules.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-class PostHeader extends StatefulWidget {
-  final PostModel _post;
-
-  const PostHeader(this._post, {super.key});
+class CommentHeader extends StatefulWidget {
+  final CommentModel _comment;
+  const CommentHeader(this._comment, {super.key});
 
   @override
-  State<PostHeader> createState() => _PostHeaderState();
+  State<CommentHeader> createState() => _CommentHeaderState();
 }
 
-class _PostHeaderState extends State<PostHeader> {
+class _CommentHeaderState extends State<CommentHeader> {
   late final Future<Object> _authorFuture;
 
   @override
   void initState() {
-    _authorFuture = UserHandler().getUserData(widget._post.authorID);
+    _authorFuture = UserHandler().getUserData(widget._comment.authorID);
 
     super.initState();
   }
@@ -74,9 +73,9 @@ class _PostHeaderState extends State<PostHeader> {
           ),
         ),
         const SizedBox(width: Styles.defaultSpacing),
-        Text(
-          widget._post.createdAt,
-          style: const TextStyle(color: Color.fromARGB(184, 36, 36, 36)),
+        const Text(
+          "14h",
+          style: TextStyle(color: Color.fromARGB(184, 36, 36, 36)),
         ),
       ],
     );

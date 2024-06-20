@@ -1,34 +1,45 @@
 import 'package:application/components/posts/post_header.dart';
 import 'package:application/design/styles.dart';
 import 'package:application/modules/publications_modules.dart';
+import 'package:application/screens/post_screen.dart';
 import 'package:flutter/material.dart';
 
 class PostCard extends StatelessWidget {
-  final PostModel _postModel;
+  final PostModel _post;
+  final double padding;
 
-  const PostCard(this._postModel, {super.key});
-  
+  const PostCard(this._post, {super.key, this.padding = 8.0});
+
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 2,
+      elevation: .5,
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: EdgeInsets.all(padding),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            PostHeader(_postModel),
-            const SizedBox(height: Styles.defaultSpacing),
+            PostHeader(_post),
 
             // ANCHOR - Post Content
-            Text(
-              _postModel.title,
-              style: TextStyle(fontSize: 18),
+            GestureDetector(
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => PostScreen(_post),
+              )),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: Styles.defaultSpacing),
+                  Text(
+                    _post.title,
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                  const Text(
+                      "as an undegrad math student, I have really enjoyed this deeper view into math that most people don't even get close to gettin close to. Before I took abstract algebra..."),
+                  const SizedBox(height: Styles.defaultSpacing),
+                ],
+              ),
             ),
-            const Text(
-                "as an undegrad math student, I have really enjoyed this deeper view into math that most people don't even get close to gettin close to. Before I took abstract algebra..."),
-
-            const SizedBox(height: Styles.defaultSpacing),
 
             // ANCHOR - Post Actions
             Row(
@@ -40,12 +51,15 @@ class PostCard extends StatelessWidget {
                     children: [
                       IconButton(
                         onPressed: () {},
-                        icon: const Icon(Icons.arrow_circle_up),
+                        icon: const Icon(
+                          Icons.star_outline_outlined,
+                          color: Styles.orange,
+                          size: 28,
+                        ),
                       ),
-                      const Text("123", style: TextStyle(color: Styles.black),),
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.arrow_circle_down),
+                      const Text(
+                        "123",
+                        style: TextStyle(color: Styles.black),
                       ),
                     ],
                   ),

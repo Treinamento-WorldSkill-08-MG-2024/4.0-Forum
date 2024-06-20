@@ -35,27 +35,84 @@ class PostModel {
   }
 }
 
+class CommentModel {
+  final int? id;
+  final String content;
+  final bool published;
+  final int authorID;
+  final int? postID;
+  final int? commentID;
+
+  CommentModel(this.id, this.content, this.published, this.authorID, this.postID, this.commentID);
+  factory CommentModel.fromJson(Map<String, dynamic> json) {
+    return switch (json) {
+      {
+        'id': int id,
+        'content': String content,
+        'published': bool published,
+        'author-id': int authorID,
+        'post-id': int? postID,
+      } =>
+        CommentModel(id, content, published, authorID, postID, null),
+      _ => throw const FormatException("Failed to convert json to post model")
+    };
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'content':  content,
+      'published':  published,
+      'author-id': authorID,
+      'post-id':  postID,
+      'comment-id':  commentID,
+    };
+  }
+}
+
 class PublicationHandler {
   static const _kBaseURL = "http://10.0.2.2:1323";
+  static const _headers = {'Content-Type': "application/json"};
 
   Future<List<PostModel>> loadFeed(int page) async {
     final response = await http.Client().get(
       Uri.parse("$_kBaseURL/feed/$page"),
-      headers: {'Content-Type': "application/json"},
+      headers: _headers,
     );
 
     final bodyData = jsonDecode(response.body) as Map<String, dynamic>;
     assert(bodyData.containsKey("message"), "Response does not contain message key");
 
-    final data = bodyData['message'] as List<dynamic>;
     if (response.statusCode != 200) {
       if (kDebugMode) {
-        print(data);
+        print(bodyData['message']);
       }
 
-      throw Exception(data);
+      throw Exception(bodyData['message']);
     }
 
+    final data = bodyData['message'] as List<dynamic>;
     return data.map((item) => PostModel.fromJson(item)).toList();
+  }
+
+  Future<List<CommentModel>> loadPostComments(int postID) async {
+    final response = await http.Client().get(
+      Uri.parse("$_kBaseURL/post/comments/$postID"), 
+      headers: _headers,
+    );
+
+    final bodyData = jsonDecode(response.body) as Map<String, dynamic>;
+    assert(bodyData.containsKey("message"), "Response does not contain message key");
+
+    if (response.statusCode != 200) {
+      if (kDebugMode) {
+        print(bodyData['message']);
+      }
+
+      throw Exception(bodyData['message']);
+    }
+
+    final data = bodyData['message'] as List<dynamic>;
+    return data.map((item) => CommentModel.fromJson(item)).toList();
   }
 }

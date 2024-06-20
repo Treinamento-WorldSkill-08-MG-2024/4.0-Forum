@@ -13,7 +13,7 @@ class UserModelFields {
 class AuthHandler {
   static const _kBaseURL = "http://10.0.2.2:1323/auth";
 
-  Future<UserModel> login(String email, String password) async {
+  Future<Object> login(String email, String password) async {
     final response = await http.Client().post(
       Uri.parse("$_kBaseURL/login"),
       headers: {'Content-Type': 'application/json'},
@@ -40,10 +40,10 @@ class AuthHandler {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(UserModelFields.token, data['token']);
 
-    return UserModel.fromJson(data['user'], token: token);
+    return Object.fromJson(data['user'], token: token);
   }
 
-  Future<UserModel?> isAuthenticated(String token) async {
+  Future<Object?> isAuthenticated(String token) async {
     final response = await http.Client().post(
       Uri.parse(_kBaseURL),
       headers: {'Content-Type': 'application/json'},
@@ -61,10 +61,10 @@ class AuthHandler {
       return null;
     }
 
-    return UserModel.fromJson(data);
+    return Object.fromJson(data);
   }
 
-  Future<bool> register(UserModel userData) async {
+  Future<bool> register(Object userData) async {
     final response = await http.Client().post(
       Uri.parse("$_kBaseURL/register"),
       headers: {'Content-Type': 'application/json'},

@@ -1,6 +1,6 @@
 part of './auth_modules.dart';
 
-class UserModel {
+class Object {
   final int? id;
   final String name;
   final String email;
@@ -8,8 +8,8 @@ class UserModel {
 
   String? authToken;
 
-  UserModel(this.id, this.name, this.email, this.password, {this.authToken});
-  factory UserModel.fromJson(Map<String, dynamic> json, {String? token}) {
+  Object(this.id, this.name, this.email, this.password, {this.authToken});
+  factory Object.fromJson(Map<String, dynamic> json, {String? token}) {
     return switch (json) {
       {
         'id': int id,
@@ -17,7 +17,7 @@ class UserModel {
         'email': String email,
         'password': String password,
       } =>
-        UserModel(id, name, email, password, authToken: token),
+        Object(id, name, email, password, authToken: token),
       _ => throw const FormatException("Fail to convert json to user model")
     };
   }
@@ -30,7 +30,7 @@ class UserModel {
 class UserHandler {
   static const _kBaseURL = "http://10.0.2.2:1323/user";
 
-  Future<UserModel> getUserData(int id) async {
+  Future<Object> getUserData(int id) async {
     final response = await http.Client().get(
       Uri.parse("$_kBaseURL/$id"),
       headers: {'Content-Type': 'application/json'},
@@ -48,6 +48,6 @@ class UserHandler {
       throw Exception(data);
     }
 
-    return UserModel.fromJson(data);
+    return Object.fromJson(data);
   }
 }

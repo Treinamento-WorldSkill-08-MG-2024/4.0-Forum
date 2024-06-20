@@ -1,4 +1,5 @@
 import 'package:application/components/arch_bottom_bar.dart';
+import 'package:application/components/home_app_bar.dart';
 import 'package:application/components/posts/post_card.dart';
 import 'package:application/components/profile_drawer.dart';
 import 'package:application/design/styles.dart';
@@ -8,7 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
-  final UserModel? currentUser;
+  final Object? currentUser;
   const HomeScreen({super.key, this.currentUser});
 
   @override
@@ -79,32 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     return Scaffold(
-      appBar: AppBar(
-        shape: const Border.symmetric(
-          horizontal: BorderSide(color: Color.fromARGB(75, 36, 36, 36)),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.stacked_bar_chart),
-          onPressed: () {},
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              children: [
-                IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
-                const SizedBox(width: Styles.defaultSpacing),
-                Builder(builder: (context) {
-                  return IconButton(
-                    onPressed: () => Scaffold.of(context).openDrawer(),
-                    icon: const Icon(Icons.person_2_outlined),
-                  );
-                })
-              ],
-            ),
-          )
-        ],
-      ),
+      appBar: const HomeAppBar(),
       body: SafeArea(
         child: Column(
           children: [_feed()],

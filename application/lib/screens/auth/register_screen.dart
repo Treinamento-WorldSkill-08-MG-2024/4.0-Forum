@@ -120,7 +120,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
 
     try {
-      final ok = await _authHandler.register(UserModel(
+      final ok = await _authHandler.register(Object(
         null,
         _nameController.text,
         _emailController.text,
