@@ -8,11 +8,13 @@ import (
 )
 
 type Post struct {
-	ID        int    `json:"-" query:"ID"`
-	Title     string `json:"title" query:"title"`
-	Published bool   `json:"published" query:"published"`
-	CreatedAt string `json:"created-at" query:"createdAt"`
-	AuthorID  int    `json:"author-id" query:"authorID"`
+	ID        int       `json:"id" query:"ID"`
+	Title     string    `json:"title" query:"title"`
+	Content   *string   `json:"-" query:"content"`
+	Images    []*string `json:"-" query:"-"`
+	Published bool      `json:"published" query:"published"`
+	CreatedAt string    `json:"created-at" query:"createdAt"`
+	AuthorID  int       `json:"author-id" query:"authorID"`
 }
 
 func QueryPosts(db *sql.DB, page int) ([]Post, error) {
@@ -32,7 +34,10 @@ func QueryPosts(db *sql.DB, page int) ([]Post, error) {
 
 	for rows.Next() {
 		var post Post
-		if err := rows.Scan(&post.ID, &post.Title, &post.Published, &post.CreatedAt, &post.AuthorID); err != nil {
+		if err := rows.Scan(
+			&post.ID, &post.Title, &post.Published,
+			&post.CreatedAt, &post.AuthorID, &post.Content,
+		); err != nil {
 			fmt.Fprintf(os.Stderr, "error scanning row: %s\n", err)
 
 			return []Post{}, nil
@@ -66,4 +71,22 @@ func (post Post) InsertPost(db *sql.DB) (int64, error) {
 	}
 
 	return id, err
+}
+
+func DeletePost(db *sql.DB, id int) (int64, error) {
+	queryResult, err := db.ExecContext(context.Background(), `DELETE FROM post WHERE ID=?`, id)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to delete user: %s\n", err)
+
+		return -1, err
+	}
+
+	rowsAffected, err := queryResult.RowsAffected()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to retrieve rows affected by deletion: %s\n", err)
+
+		return -1, err
+	}
+
+	return rowsAffected, nil
 }

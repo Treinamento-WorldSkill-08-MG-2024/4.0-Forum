@@ -8,7 +8,7 @@ import (
 	"io"
 )
 
-func Encrypt_AES(data string, key string) (string, error) {
+func Encrypt_AES256(data string, key string) (string, error) {
 	aesBlock, err := aes.NewCipher([]byte(key))
 	if err != nil {
 		return "", fmt.Errorf("failed to create encryption block: %s", err)
@@ -28,7 +28,7 @@ func Encrypt_AES(data string, key string) (string, error) {
 	return string(dataBuffer), nil
 }
 
-func Decrypt_AES(encryptedData string, key string) (string, error) {
+func Decrypt_AES256(encryptedData string, key string) (string, error) {
 	aesBlock, err := aes.NewCipher([]byte(key))
 	if err != nil {
 		return "", fmt.Errorf("failed to create encryption block: %s", err)

@@ -28,6 +28,7 @@ func AuthRouter(db *sql.DB, e *echo.Echo) {
 		os.Exit(1)
 	}
 
+	e.POST("/auth", authenticateRoute)
 	e.POST("/auth/login", loginRoute)
 	e.POST("/auth/register", registerRoute)
 	e.POST("/auth/forgot", forgotRoute)
@@ -83,7 +84,63 @@ func registerRoute(context echo.Context) error {
 }
 
 func forgotRoute(context echo.Context) error {
+	// TODO -
 	return errors.New("not implemented")
+}
+
+func authenticateRoute(context echo.Context) error {
+	type reqPayload struct {
+		Token string `json:"token"`
+	}
+
+	payload := new(reqPayload)
+	if err := context.Bind(payload); err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to bind payload (authenticate route): %s\n", err)
+
+		return context.JSON(http.StatusBadRequest, lib.JsonResponse{Message: "Invalid request body"})
+	}
+
+	token, err := crypt.Decrypt_AES256(payload.Token, key)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to decrypt token %s\n", err)
+
+		return context.JSON(http.StatusBadRequest, lib.JsonResponse{Message: "Invalid token"})
+	}
+
+	stringID := token[:userIdBytesLength]
+	stringExpDate := token[userIdBytesLength:expDateBytesLength]
+
+	formatExpData := stringExpDate + ":00"
+	expDate, err := time.Parse(time.DateTime, formatExpData)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to read expiration data %s\n", err)
+
+		return context.JSON(http.StatusBadRequest, lib.JsonResponse{Message: "Invalid request body"})
+	}
+
+	if time.Now().After(expDate) {
+		return context.JSON(http.StatusUnauthorized, lib.JsonResponse{Message: "Token Expired"})
+	}
+
+	user := new(models.User)
+
+	id, err := strconv.Atoi(stringID)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to parse id to string %s\n", err)
+
+		return context.JSON(http.StatusBadRequest, lib.JsonResponse{Message: "Invalid request body"})
+	}
+
+	foundUser, err := user.QueryUserByID(*internal_db, id)
+	if err != nil {
+		return context.JSON(http.StatusInternalServerError, lib.JsonResponse{Message: "Failed to query user data"})
+	}
+
+	if !foundUser {
+		return context.JSON(http.StatusNotFound, lib.JsonResponse{Message: "User not found"})
+	}
+
+	return context.JSON(http.StatusAccepted, lib.JsonResponse{Message: user})
 }
 
 const (
@@ -125,5 +182,5 @@ func buildToken(id string) (string, error) {
 	}
 
 	token := formatedId + expOffset
-	return crypt.Encrypt_AES(token, key)
+	return crypt.Encrypt_AES256(token, key)
 }

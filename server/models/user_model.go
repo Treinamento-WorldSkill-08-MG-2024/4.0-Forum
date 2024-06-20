@@ -8,7 +8,7 @@ import (
 )
 
 type User struct {
-	ID       int    `json:"-" query:"id"`
+	ID       int    `json:"id" query:"id"`
 	Name     string `json:"name" query:"name"`
 	Email    string `json:"email" query:"email"`
 	Password string `json:"password" query:"password"`
@@ -16,6 +16,29 @@ type User struct {
 
 func (user *User) QueryUserByName(db *sql.DB, name string) (bool, error) {
 	rows, err := db.Query("SELECT * FROM users WHERE name=?", name)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to query user by name: %s\n", err)
+
+		return false, err
+	}
+
+	defer rows.Close()
+
+	if rows.Next() {
+		if err := rows.Scan(&user.ID, &user.Name, &user.Password, &user.Email); err != nil {
+			fmt.Fprintf(os.Stderr, "Error scanning row: %s\n", err)
+
+			return false, err
+		}
+
+		return true, nil
+	}
+
+	return false, nil
+}
+
+func (user *User) QueryUserByID(db *sql.DB, id int) (bool, error) {
+	rows, err := db.Query("SELECT * FROM users WHERE ID=?", id)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to query user by name: %s\n", err)
 
