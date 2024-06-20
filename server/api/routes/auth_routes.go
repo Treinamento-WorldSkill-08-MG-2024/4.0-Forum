@@ -75,7 +75,7 @@ func registerRoute(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, lib.JsonResponse{Message: "Invalid request body"})
 	}
 
-	id, err := user.InsertNewUser(*internal_db)
+	id, err := user.Insert(*internal_db)
 	if err != nil {
 		return context.JSON(http.StatusInternalServerError, lib.JsonResponse{Message: "Failed to add user into database"})
 	}

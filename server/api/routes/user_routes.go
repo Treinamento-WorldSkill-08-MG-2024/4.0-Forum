@@ -14,7 +14,7 @@ import (
 
 func UsersRouter(db *sql.DB, e *echo.Echo) {
 	e.GET("/users", func(context echo.Context) error {
-		users, err := models.QueryUsers(db)
+		users, err := models.User{}.Query(db)
 		if err != nil {
 			return context.JSON(http.StatusInternalServerError, lib.JsonResponse{Message: "failed to get users from database"})
 		}

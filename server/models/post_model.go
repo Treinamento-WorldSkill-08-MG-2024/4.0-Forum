@@ -1,92 +1,63 @@
 package models
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 	"os"
 )
 
 type Post struct {
-	ID        int       `json:"id" query:"ID"`
-	Title     string    `json:"title" query:"title"`
-	Content   *string   `json:"-" query:"content"`
-	Images    []*string `json:"-" query:"-"`
-	Published bool      `json:"published" query:"published"`
-	CreatedAt string    `json:"created-at" query:"createdAt"`
-	AuthorID  int       `json:"author-id" query:"authorID"`
+	ID            int       `json:"id" query:"ID"`
+	Title         string    `json:"title" query:"title"`
+	Content       *string   `json:"-" query:"content"`
+	Images        []*string `json:"-" query:"-"`
+	Published     bool      `json:"published" query:"published"`
+	CreatedAt     string    `json:"created-at" query:"createdAt"`
+	AuthorID      int       `json:"author-id" query:"authorID"`
+	CommentsCount int64     `json:"comments-count" query:"authorID"`
 }
 
-func QueryPosts(db *sql.DB, page int) ([]Post, error) {
-	var posts []Post
-
+func (Post) Query(db *sql.DB, page int) ([]Post, error) {
 	const itemsCount int = 4
 	var offset int = page * itemsCount
 
-	query := fmt.Sprintf(`SELECT * FROM post LIMIT %d OFFSET %d`, itemsCount, offset)
-	rows, err := db.Query(query)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to execute query: %v\n", err)
-		return nil, err
-	}
-
-	defer rows.Close()
-
-	for rows.Next() {
-		var post Post
-		if err := rows.Scan(
-			&post.ID, &post.Title, &post.Published,
-			&post.CreatedAt, &post.AuthorID, &post.Content,
-		); err != nil {
-			fmt.Fprintf(os.Stderr, "error scanning row: %s\n", err)
-
-			return []Post{}, nil
+	query := `SELECT * FROM post LIMIT ? OFFSET ?`
+	return queryFactory(db, query, func(post *Post, rows *sql.Rows) error {
+		if err := rows.Scan(&post.ID, &post.Title, &post.Published, &post.CreatedAt, &post.AuthorID, &post.Content); err != nil {
+			return err
 		}
 
-		posts = append(posts, post)
-	}
+		commentsCount, err := post.CountCommentsInPost(db, post.ID)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Failed")
 
-	if err := rows.Err(); err != nil {
-		return []Post{}, nil
-	}
+			return err
+		}
 
-	return posts, nil
+		post.CommentsCount = commentsCount
+		return nil
+	}, itemsCount, offset)
 }
 
-func (post Post) InsertPost(db *sql.DB) (int64, error) {
+func (Post) CountCommentsInPost(db *sql.DB, postID int) (int64, error) {
+	var count int64
+
+	row := db.QueryRow(`SELECT COUNT(*) FROM comment WHERE postID=?`, postID)
+	err := row.Scan(&count)
+
+	if err != nil {
+		fmt.Fprint(os.Stderr, "failed to count")
+		return -1, err
+	}
+
+	return count, nil
+}
+
+func (post Post) Insert(db *sql.DB) (int64, error) {
 	query := `INSERT INTO post VALUES (NULL, ?, ?, ?, ?)`
-
-	insertResult, err := db.ExecContext(context.Background(), query, post.Title, post.Published, post.CreatedAt, post.AuthorID)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to insert user: %s\n", err)
-
-		return -1, err
-	}
-
-	id, err := insertResult.LastInsertId()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to retrieve last inserted id: %s\n", err)
-
-		return -1, err
-	}
-
-	return id, err
+	return insertFactory(db, query, post.Title, post.Published, post.CreatedAt, post.AuthorID)
 }
 
-func DeletePost(db *sql.DB, id int) (int64, error) {
-	queryResult, err := db.ExecContext(context.Background(), `DELETE FROM post WHERE ID=?`, id)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to delete user: %s\n", err)
-
-		return -1, err
-	}
-
-	rowsAffected, err := queryResult.RowsAffected()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to retrieve rows affected by deletion: %s\n", err)
-
-		return -1, err
-	}
-
-	return rowsAffected, nil
+func (post Post) Delete(db *sql.DB) (int64, error) {
+	return deleteFactory(db, `DELETE FROM post WHERE ID=?`, post.ID)
 }

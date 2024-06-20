@@ -49,6 +49,6 @@ func seedPublications(db *sql.DB) {
 	}
 
 	for _, post := range posts {
-		post.InsertPost(db)
+		post.Insert(db)
 	}
 }
