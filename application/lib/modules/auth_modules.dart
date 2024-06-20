@@ -21,7 +21,8 @@ class AuthHandler {
     );
 
     final bodyData = jsonDecode(response.body) as Map<String, dynamic>;
-    assert(bodyData.containsKey("message"), "Login response does not contain message key");
+    assert(bodyData.containsKey("message"),
+        "Login response does not contain message key");
 
     final data = bodyData['message'];
     if (response.statusCode != 200) {
@@ -42,14 +43,25 @@ class AuthHandler {
     return UserModel.fromJson(data['user'], token: token);
   }
 
-  Future<bool> isAuthenticated() async {
-    final response = await http.Client().post(Uri.parse(_kBaseURL));
-    if (response.statusCode != 200) {
-      throw Exception("Falha ao autentiar usuário");
+  Future<UserModel?> isAuthenticated(String token) async {
+    final response = await http.Client().post(
+      Uri.parse(_kBaseURL),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'token': token}),
+    );
+
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    
+    if (response.statusCode != 202) {
+      if (kDebugMode) {
+        print(data);
+      }
+
+      // throw Exception("Falha ao autenticar usuário");
+      return null;
     }
 
-    final _ = jsonDecode(response.body) as Map<String, dynamic>;
-    throw Exception("Not Implements");
+    return UserModel.fromJson(data);
   }
 
   Future<bool> register(UserModel userData) async {

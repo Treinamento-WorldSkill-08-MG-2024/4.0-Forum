@@ -2,12 +2,14 @@ import 'package:application/components/arch_bottom_bar.dart';
 import 'package:application/components/posts/post_card.dart';
 import 'package:application/components/profile_drawer.dart';
 import 'package:application/design/styles.dart';
+import 'package:application/modules/auth_modules.dart';
 import 'package:application/modules/publications_modules.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final UserModel? currentUser;
+  const HomeScreen({super.key, this.currentUser});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();

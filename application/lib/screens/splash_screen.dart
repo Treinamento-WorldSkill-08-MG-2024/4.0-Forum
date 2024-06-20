@@ -16,7 +16,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   bool _apiConnectionFailed = false;
 
-  Future<Object?> _helloWorld() async {
+  Future<UserModel?> _helloWorld() async {
     final prefs = await SharedPreferences.getInstance();
 
     final response =
@@ -30,9 +30,7 @@ class _SplashScreenState extends State<SplashScreen> {
       return null;
     }
 
-    // TODO - Authnetiate user then redirect him to the home screen
-
-    return prefs.get(UserModelFields.token);
+    return await AuthHandler().isAuthenticated(token as String);
   }
 
   @override
@@ -43,7 +41,7 @@ class _SplashScreenState extends State<SplashScreen> {
             ? Navigator.of(context)
               .pushReplacement(MaterialPageRoute(builder: (_) => const LoginScreen()))
             : Navigator.of(context)
-              .pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()))
+              .pushReplacement(MaterialPageRoute(builder: (_) => HomeScreen(currentUser: user)))
         )
         .catchError((error) { 
           setState(() => _apiConnectionFailed = true);
