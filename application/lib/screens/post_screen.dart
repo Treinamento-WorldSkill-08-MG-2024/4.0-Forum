@@ -56,6 +56,12 @@ class _PostScreenState extends State<PostScreen> {
 
                   if (snapshot.connectionState == ConnectionState.done &&
                       snapshot.hasData) {
+                    if (snapshot.data!.isEmpty) {
+                      return const Center(
+                        child: Text("Nenhum comentário encontrado"),
+                      );
+                    }
+
                     return _commentsFeed(snapshot.data!);
                   }
 

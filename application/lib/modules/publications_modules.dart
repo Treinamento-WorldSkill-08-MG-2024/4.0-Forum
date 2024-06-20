@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -9,8 +10,17 @@ class PostModel {
   final bool published;
   final String createdAt;
   final int authorID;
+  final int commentsCount;
 
-  PostModel(this.id, this.title, this.published, this.createdAt, this.authorID);
+  PostModel(
+    this.id, 
+    this.title, 
+    this.published, 
+    this.createdAt, 
+    this.authorID, 
+    this.commentsCount
+  );
+
   factory PostModel.fromJson(Map<String, dynamic> json) {
     return switch (json) {
       {
@@ -19,8 +29,9 @@ class PostModel {
         'published': bool published,
         'created-at': String createdAt,
         'author-id': int authorID,
+        'comments-count': int commentsCount,
       } =>
-        PostModel(id, title, published, createdAt, authorID),
+        PostModel(id, title, published, createdAt, authorID, commentsCount),
       _ => throw const FormatException("Failed to convert json to post model")
     };
   }
@@ -31,6 +42,7 @@ class PostModel {
       'published': published,
       'createdAt': createdAt,
       'authorID': authorID,
+      'comments-count': commentsCount,
     };
   }
 }
@@ -101,10 +113,14 @@ class PublicationHandler {
       headers: _headers,
     );
 
+    if (response.statusCode == HttpStatus.noContent) {
+      return [];
+    }
+
     final bodyData = jsonDecode(response.body) as Map<String, dynamic>;
     assert(bodyData.containsKey("message"), "Response does not contain message key");
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != HttpStatus.ok) {
       if (kDebugMode) {
         print(bodyData['message']);
       }

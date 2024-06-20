@@ -66,13 +66,13 @@ class PostCard extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {},
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(Icons.chat, color: Styles.orange),
-                      SizedBox(width: Styles.defaultSpacing),
+                      const Icon(Icons.chat, color: Styles.orange),
+                      const SizedBox(width: Styles.defaultSpacing),
                       Text(
-                        "155 Comentários",
-                        style: TextStyle(color: Styles.black),
+                        _post.commentsCount.toString(),
+                        style: const TextStyle(color: Styles.black),
                       )
                     ],
                   ),
