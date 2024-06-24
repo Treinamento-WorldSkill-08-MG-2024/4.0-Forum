@@ -7,12 +7,12 @@ import (
 	"os"
 )
 
-type Model interface {
+type IModel interface {
 	Insert(db *sql.DB) (int64, error)
 	Delete(db *sql.DB) (int64, error)
 }
 
-func queryFactory[M Model](
+func queryFactory[M IModel](
 	db *sql.DB,
 	query string,
 	scan func(*M, *sql.Rows) error,
@@ -33,14 +33,14 @@ func queryFactory[M Model](
 		if err := scan(&model, rows); err != nil {
 			fmt.Fprintf(os.Stderr, "error scanning row: %s\n", err)
 
-			return []M{}, nil
+			return []M{}, err
 		}
 
 		models = append(models, model)
 	}
 
 	if err := rows.Err(); err != nil {
-		return []M{}, nil
+		return []M{}, err
 	}
 
 	return models, nil

@@ -152,6 +152,9 @@ class PublicationHandler {
     }
 
     final data = bodyData['message'] as List<dynamic>;
+
+    print(data);
+    print(data[0]);
     return data.map((item) => PostModel.fromJson(item)).toList();
   }
 
@@ -166,8 +169,7 @@ class PublicationHandler {
     }
 
     final bodyData = jsonDecode(response.body) as Map<String, dynamic>;
-    assert(bodyData.containsKey("message"),
-        "Response does not contain message key");
+    assert(bodyData.containsKey("message"));
 
     if (response.statusCode != HttpStatus.ok) {
       if (kDebugMode) {

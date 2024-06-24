@@ -2,9 +2,9 @@ import 'package:application/components/arch_bottom_bar.dart';
 import 'package:application/components/home_app_bar.dart';
 import 'package:application/components/posts/post_card.dart';
 import 'package:application/components/profile_drawer.dart';
-import 'package:application/design/styles.dart';
 import 'package:application/modules/auth_modules.dart';
 import 'package:application/modules/publications_modules.dart';
+import 'package:application/screens/post_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -53,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _postsFuture = _publicationHandler.loadFeed(_pageNumber);
     _postsFuture
         .then((posts) => setState(() {
-          print(posts);
+          print("aAAAAAA");
               _isLastPage = posts.length < _postPerRequest;
               _pageNumber += 1;
 
@@ -101,11 +101,17 @@ class _HomeScreenState extends State<HomeScreen> {
           if (index == _posts.length) {
             return const Center(
               child: Text(
-                  "Não encontramos mais posts ou ainda estão sendo carregados"),
+                "Não encontramos mais posts ou ainda estão sendo carregados",
+              ),
             );
           }
 
-          return PostCard(_posts[index]);
+          return GestureDetector(
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => PostScreen(_posts[index]),
+            )),
+            child: PostCard(_posts[index]),
+          );
         },
       ),
     );

@@ -2,7 +2,6 @@ import 'package:application/components/buttons/like_button.dart';
 import 'package:application/components/posts/post_header.dart';
 import 'package:application/design/styles.dart';
 import 'package:application/modules/publications_modules.dart';
-import 'package:application/screens/post_screen.dart';
 import 'package:flutter/material.dart';
 
 class PostCard extends StatelessWidget {
@@ -23,29 +22,25 @@ class PostCard extends StatelessWidget {
             PostHeader(_post),
 
             // ANCHOR - Post Content
-            GestureDetector(
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => PostScreen(_post),
-              )),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: Styles.defaultSpacing),
-                  Text(
-                    _post.title,
-                    style: const TextStyle(fontSize: 18),
-                  ),
-                  const Text(
-                      "as an undegrad math student, I have really enjoyed this deeper view into math that most people don't even get close to gettin close to. Before I took abstract algebra..."),
-                  const SizedBox(height: Styles.defaultSpacing),
-                ],
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: Styles.defaultSpacing),
+                Text(
+                  _post.title,
+                  style: const TextStyle(fontSize: 18),
+                ),
+                const Text(
+                    "as an undegrad math student, I have really enjoyed this deeper view into math that most people don't even get close to gettin close to. Before I took abstract algebra..."),
+                const SizedBox(height: Styles.defaultSpacing),
+              ],
             ),
 
             // ANCHOR - Post Actions
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                LikeButton(_post),
                 TextButton(
                   onPressed: () {},
                   child: Row(
@@ -59,7 +54,6 @@ class PostCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                LikeButton(_post),
                 TextButton(
                   onPressed: () {},
                   child: const Row(
