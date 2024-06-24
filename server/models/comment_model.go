@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+
+	"github.com/Treinamento-WorldSkill-08-MG-2024/ArchForum/server/lib"
 )
 
 type Comment struct {
@@ -13,15 +15,19 @@ type Comment struct {
 	AuthorID      int    `json:"author-id" query:"authorID"`
 	CreatedAt     string `json:"-" query:"createdAt"`
 	PostID        *int   `json:"post-id" query:"postID"`
-	CommentID     *int   `json:"comment-id" query:"-"`
+	CommentID     *int   `json:"comment-id" query:"commentID"`
 	LikesCount    int64  `json:"likes-count"`
 	CommentsCount int64  `json:"comments-count"`
 }
 
-func (Comment) Query(db *sql.DB, postID int, page int) ([]Comment, error) {
-	query := `SELECT * FROM comment WHERE postID=?`
+func (comment Comment) Query(db *sql.DB, page int) ([]Comment, error) {
+	postID := lib.SafeDerefComparable(comment.PostID)
+	commentID := lib.SafeDerefComparable(comment.CommentID)
+
+	query := `SELECT * FROM comment WHERE (postID=? AND commentID IS NULL) OR (postID IS NULL AND commentID=?)`
 	return queryFactory(db, query, func(c *Comment, rows *sql.Rows) error {
 		if err := rows.Scan(&c.ID, &c.Content, &c.Published, &c.CreatedAt, &c.AuthorID, &c.PostID, &c.CommentID); err != nil {
+			fmt.Fprintf(os.Stderr, "Failed scann: %s\n", err)
 			return err
 		}
 
@@ -33,13 +39,14 @@ func (Comment) Query(db *sql.DB, postID int, page int) ([]Comment, error) {
 		}
 
 		c.LikesCount = likesCount
+		print(c)
 		return nil
-	}, postID)
+	}, postID, commentID)
 }
 
 func (comment Comment) Insert(db *sql.DB) (int64, error) {
-	query := `INSERT INTO comment VALUES (NULL, ?, ?, ?, ?, NULL)`
-	return insertFactory(db, query, comment.Content, comment.Published, comment.AuthorID, comment.PostID)
+	query := `INSERT INTO comment VALUES (NULL, ?, ?, ?, ?, ?, ?)`
+	return insertFactory(db, query, comment.Content, comment.Published, "", comment.AuthorID, comment.PostID, comment.CommentID)
 }
 
 func (comment Comment) Delete(db *sql.DB) (int64, error) {

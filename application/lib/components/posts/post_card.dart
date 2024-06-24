@@ -2,6 +2,7 @@ import 'package:application/components/buttons/like_button.dart';
 import 'package:application/components/posts/post_header.dart';
 import 'package:application/design/styles.dart';
 import 'package:application/modules/publications_modules.dart';
+import 'package:application/screens/post_screen.dart';
 import 'package:flutter/material.dart';
 
 class PostCard extends StatelessWidget {
@@ -30,8 +31,7 @@ class PostCard extends StatelessWidget {
                   _post.title,
                   style: const TextStyle(fontSize: 18),
                 ),
-                const Text(
-                    "as an undegrad math student, I have really enjoyed this deeper view into math that most people don't even get close to gettin close to. Before I took abstract algebra..."),
+                Text(_post.content),
                 const SizedBox(height: Styles.defaultSpacing),
               ],
             ),
@@ -42,7 +42,15 @@ class PostCard extends StatelessWidget {
               children: [
                 LikeButton(_post),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    if (Navigator.of(context).canPop()) {
+                      return;
+                    }
+
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => PostScreen(_post),
+                    ));
+                  },
                   child: Row(
                     children: [
                       const Icon(Icons.chat, color: Styles.orange),

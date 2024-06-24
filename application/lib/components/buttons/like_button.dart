@@ -20,8 +20,8 @@ class _LikeButtonState extends State<LikeButton> {
   @override
   void initState() {
     // TODO - Add current user
-    PublicationHandler()
-        .isPostLiked(widget._publication, 2)
+    PublicationHandler.given(widget._publication)
+        .isPostLiked(2)
         .then(
           (val) => setState(() {
             _isLiked = val != -1;
@@ -62,7 +62,7 @@ class _LikeButtonState extends State<LikeButton> {
   void _like() async {
     if (!_isLiked) {
       final likeId =
-          await PublicationHandler().likePost(widget._publication, 2);
+          await PublicationHandler.given(widget._publication).likePost(2);
 
       setState(() {
         _likeId = likeId;

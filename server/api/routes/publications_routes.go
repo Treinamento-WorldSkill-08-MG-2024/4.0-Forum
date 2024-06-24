@@ -14,6 +14,7 @@ import (
 func PublicationsRouter(db *sql.DB, e *echo.Echo) {
 	e.GET("/feed/:page", getFeedRoute)
 	e.GET("/post/comments/:postId", getPostCommentsRoute)
+	e.GET("/comment/:id/replies", getCommentReplies)
 	e.GET("/post/liked/:postId/:userId", getIsPostLiked)
 	e.GET("/comment/liked/:commentId/:userId", getIsCommentLiked)
 
@@ -82,7 +83,26 @@ func getPostCommentsRoute(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, lib.ApiResponse{"message": "Invalid id"})
 	}
 
-	comments, err := models.Comment{}.Query(*internal_db, id, -1)
+	comments, err := models.Comment{PostID: &id}.Query(*internal_db, -1)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "could not perform comments query: %v\n", err)
+		return context.JSON(http.StatusInternalServerError, lib.ApiResponse{"message": "something went wrong"})
+	}
+
+	if len(comments) <= 0 {
+		return context.NoContent(http.StatusNoContent)
+	}
+
+	return context.JSON(http.StatusOK, lib.ApiResponse{"message": comments})
+}
+
+func getCommentReplies(context echo.Context) error {
+	id, err := getIntParam(context, "id")
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, lib.ApiResponse{"message": "Invalid id"})
+	}
+
+	comments, err := models.Comment{CommentID: &id}.Query(*internal_db, -1)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "could not perform comments query: %v\n", err)
 		return context.JSON(http.StatusInternalServerError, lib.ApiResponse{"message": "something went wrong"})
@@ -111,16 +131,6 @@ func postCommentRoute(context echo.Context) error {
 }
 
 func postLike(context echo.Context) error {
-	// authorID, err := getIntParam(context, "authorId")
-	// if err != nil {
-	// 	return context.JSON(http.StatusBadRequest, lib.ApiResponse{"message": "Invalid authorId"})
-	// }
-
-	// publicationID, err := getIntParam(context, "postId")
-	// if err != nil {
-	// 	return context.JSON(http.StatusBadRequest, lib.ApiResponse{"message": "Invalid publicationId"})
-	// }
-
 	like := new(models.Like)
 	if err := bindJSONBody(context, like); err != nil {
 		return context.JSON(http.StatusBadRequest, lib.ApiResponse{"message": "Invalid Request Body"})

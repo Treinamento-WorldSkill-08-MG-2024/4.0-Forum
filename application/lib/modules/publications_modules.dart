@@ -12,6 +12,7 @@ sealed class IPublicationModel {
   final int commentsCount;
 
   IPublicationModel(this.id, this.content, this.likesCount, this.commentsCount);
+  Map<String, dynamic> toJson();
 }
 
 class PostModel extends IPublicationModel {
@@ -54,6 +55,7 @@ class PostModel extends IPublicationModel {
     };
   }
 
+  @override
   Map<String, dynamic> toJson() {
     return {
       'id': _id,
@@ -83,10 +85,10 @@ class CommentModel extends IPublicationModel {
     this.published,
     this.authorID,
     this.postID,
-    this.commentID,
-    int likesCount,
-    int commentsCount,
-  ) : super(_id, _content, likesCount, commentsCount);
+    this.commentID, {
+    int likesCount = 0,
+    int commentsCount = 0,
+  }) : super(_id, _content, likesCount, commentsCount);
 
   factory CommentModel.fromJson(Map<String, dynamic> json) {
     return switch (json) {
@@ -100,20 +102,13 @@ class CommentModel extends IPublicationModel {
         'likes-count': int likesCount,
         'comments-count': int commentsCount,
       } =>
-        CommentModel(
-          id,
-          content,
-          published,
-          authorID,
-          postID,
-          commentID,
-          likesCount,
-          commentsCount,
-        ),
+        CommentModel(id, content, published, authorID, postID, commentID,
+            likesCount: likesCount, commentsCount: commentsCount),
       _ => throw const FormatException("Failed to convert json to post model")
     };
   }
 
+  @override
   Map<String, dynamic> toJson() {
     return {
       'id': _id,
@@ -131,11 +126,18 @@ class PublicationHandler {
   static const _headers = {'Content-Type': "application/json"};
 
   final http.Client _client;
+  final IPublicationModel? _publication;
 
-  PublicationHandler() : _client = http.Client();
+  PublicationHandler({IPublicationModel? publication})
+      : _client = http.Client(),
+        _publication = publication;
+
+  factory PublicationHandler.given(IPublicationModel publication) {
+    return PublicationHandler(publication: publication);
+  }
 
   Future<List<PostModel>> loadFeed(int page) async {
-    final response = await _client.get(
+    final response = await http.Client().get(
       Uri.parse("$_kBaseURL/feed/$page"),
       headers: _headers,
     );
@@ -153,6 +155,31 @@ class PublicationHandler {
 
     final data = bodyData['message'] as List<dynamic>;
     return data.map((item) => PostModel.fromJson(item)).toList();
+  }
+
+  Future<List<CommentModel>> loadCommentReplies(int commentID) async {
+    final response = await _client.get(
+      Uri.parse("$_kBaseURL/comment/$commentID/replies"),
+      headers: _headers,
+    );
+
+    if (response.statusCode == HttpStatus.noContent) {
+      return [];
+    }
+
+    final bodyData = jsonDecode(response.body) as Map<String, dynamic>;
+    assert(bodyData.containsKey("message"));
+
+    if (response.statusCode != HttpStatus.ok) {
+      if (kDebugMode) {
+        print(bodyData['message']);
+      }
+
+      throw Exception(bodyData['message']);
+    }
+
+    final data = bodyData['message'] as List<dynamic>;
+    return data.map((item) => CommentModel.fromJson(item)).toList();
   }
 
   Future<List<CommentModel>> loadPostComments(int postID) async {
@@ -180,14 +207,16 @@ class PublicationHandler {
     return data.map((item) => CommentModel.fromJson(item)).toList();
   }
 
-  Future<int> likePost(IPublicationModel publication, int currentUserID) async {
+  Future<int> likePost(int currentUserID) async {
+    assert(_publication != null, "Publication field must be not equal to null");
+
     final response = await _client.post(
-      Uri.parse("$_kBaseURL/${publication.uriKeyword}/like"),
+      Uri.parse("$_kBaseURL/${_publication!.uriKeyword}/like"),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'user-id': currentUserID,
-        'post-id': publication is PostModel ? publication.id : null,
-        'comment-id': publication is CommentModel ? publication.id : null,
+        'post-id': _publication is PostModel ? _publication.id : null,
+        'comment-id': _publication is CommentModel ? _publication.id : null,
       }),
     );
 
@@ -222,13 +251,12 @@ class PublicationHandler {
     return true;
   }
 
-  Future<int> isPostLiked(
-    IPublicationModel publication,
-    int currentUserId,
-  ) async {
+  Future<int> isPostLiked(int currentUserId) async {
+    assert(_publication != null, "Publication field must be not equal to null");
+
     final response = await _client.get(
       Uri.parse(
-        "$_kBaseURL/${publication.uriKeyword}/liked/${publication.id!}/$currentUserId",
+        "$_kBaseURL/${_publication!.uriKeyword}/liked/${_publication.id!}/$currentUserId",
       ),
       headers: {'Content-Type': 'application/json'},
     );
@@ -247,15 +275,17 @@ class PublicationHandler {
     return data['message'] as int;
   }
 
-  Future<bool> newPost(int currentUserID, PostModel post) async {
+  Future<bool> newPublication(int currentUserID) async {
+    assert(_publication != null, "Publication field must be not equal to null");
+
     final response = await _client.post(
-      Uri.parse("$_kBaseURL/post"),
+      Uri.parse("$_kBaseURL/${_publication!.uriKeyword}"),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(post.toJson()),
+      body: jsonEncode(_publication.toJson()),
     );
 
     final data = jsonDecode(response.body) as Map<String, dynamic>;
-    if (response.statusCode != HttpStatus.ok) {
+    if (response.statusCode != HttpStatus.created) {
       if (kDebugMode) {
         print(data);
       }

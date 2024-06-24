@@ -3,20 +3,32 @@ import 'package:application/modules/publications_modules.dart';
 import 'package:flutter/material.dart';
 
 class NewCommentScreen extends StatelessWidget {
-  final String? originCommentAuthor;
-  final String? originCommentContent;
+  final IPublicationModel _originPublication;
+  final String? _originAuthor;
 
-  NewCommentScreen({super.key, this.originCommentAuthor, this.originCommentContent});
+  final bool _isReply;
+
+  NewCommentScreen(this._originPublication, {super.key, String? originAuthor})
+      : _isReply = _originPublication is CommentModel,
+        _originAuthor = originAuthor,
+        assert(_originPublication.id != null),
+        assert(_originPublication is CommentModel && originAuthor != null);
 
   final _formKey = GlobalKey<FormState>();
-
-  final _titleController = TextEditingController();
   final _contentController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: Text(
+          _isReply ? "Resposta" : "Novo comentário",
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(187, 0, 0, 0),
+          ),
+        ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: Styles.defaultSpacing),
@@ -28,18 +40,17 @@ class NewCommentScreen extends StatelessWidget {
                   return;
                 }
 
-                final newPost = PostModel(
+                final newComment = CommentModel(
                   null,
                   _contentController.text,
-                  _titleController.text,
                   true,
-                  DateTime.now().toString(),
                   2,
-                  0,
-                  0,
+                  _isReply ? null : _originPublication.id,
+                  _isReply ? _originPublication.id : null,
                 );
 
-                final ok = await PublicationHandler().newPost(2, newPost);
+                final ok = await PublicationHandler.given(newComment)
+                    .newPublication(2);
 
                 if (!context.mounted) {
                   return;
@@ -60,12 +71,12 @@ class NewCommentScreen extends StatelessWidget {
           padding: const EdgeInsets.all(Styles.defaultSpacing),
           child: Column(
             children: [
-              originCommentAuthor != null
+              !_isReply
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(originCommentAuthor!),
-                        Text(originCommentContent!),
+                        Text(_originAuthor!),
+                        Text(_originPublication.content),
                         const Divider(),
                       ],
                     )
@@ -82,7 +93,7 @@ class NewCommentScreen extends StatelessWidget {
                   expands: true,
                   maxLines: null,
                   minLines: null,
-                  controller: _titleController,
+                  controller: _contentController,
                 ),
               ),
             ],

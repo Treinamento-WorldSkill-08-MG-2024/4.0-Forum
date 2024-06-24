@@ -20,6 +20,14 @@ class _NewPostScreenState extends State<NewPostScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: const Text(
+          "Nova postagem",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(187, 0, 0, 0),
+          ),
+        ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: Styles.defaultSpacing),
@@ -30,7 +38,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                 if (!_formKey.currentState!.validate()) {
                   return;
                 }
-            
+
                 final newPost = PostModel(
                   null,
                   _contentController.text,
@@ -41,13 +49,14 @@ class _NewPostScreenState extends State<NewPostScreen> {
                   0,
                   0,
                 );
-            
-                final ok = await PublicationHandler().newPost(2, newPost);
-            
+
+                final ok =
+                    await PublicationHandler.given(newPost).newPublication(2);
+
                 if (!context.mounted) {
                   return;
                 }
-            
+
                 if (ok) {
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(builder: (_) => const HomeScreen()),
@@ -98,7 +107,10 @@ class _NewPostScreenState extends State<NewPostScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             IconButton(
-              icon: const Icon(Icons.image, size: 32,),
+              icon: const Icon(
+                Icons.image,
+                size: 32,
+              ),
               onPressed: () {},
             ),
           ],

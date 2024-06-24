@@ -1,6 +1,5 @@
-import 'package:application/components/buttons/like_button.dart';
 import 'package:application/components/home_app_bar.dart';
-import 'package:application/components/posts/comment_header.dart';
+import 'package:application/components/posts/comment_card.dart';
 import 'package:application/components/posts/post_card.dart';
 import 'package:application/design/styles.dart';
 import 'package:application/modules/publications_modules.dart';
@@ -23,7 +22,7 @@ class _PostScreenState extends State<PostScreen> {
   @override
   void initState() {
     _commentsFuture =
-        PublicationHandler().loadPostComments(widget._post.authorID);
+        PublicationHandler().loadPostComments(widget._post.id!);
 
     super.initState();
   }
@@ -38,9 +37,7 @@ class _PostScreenState extends State<PostScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              PostCard(
-                widget._post,
-              ),
+              PostCard(widget._post),
 
               const SizedBox(height: Styles.defaultSpacing * 2),
 
@@ -78,7 +75,7 @@ class _PostScreenState extends State<PostScreen> {
         height: MediaQuery.of(context).size.height * .08,
         child: TextButton(
           onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-            builder: (_) => NewCommentScreen(),
+            builder: (_) => NewCommentScreen(widget._post),
           )),
           child: const Text("Enviar Comentário"),
         ),
@@ -90,46 +87,7 @@ class _PostScreenState extends State<PostScreen> {
     return ListView.builder(
       itemCount: comments.length,
       shrinkWrap: true,
-      itemBuilder: (_, index) => Card(
-        child: Padding(
-          padding: const EdgeInsets.all(Styles.defaultSpacing),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CommentHeader(comments[index]),
-              Text(comments[index].content),
-
-              //ANCHOR - Comment Actions
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => NewCommentScreen(
-                          originCommentContent: comments[index].content,
-                          originCommentAuthor: "Placeholder nome autor",
-                        ),
-                      ),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(Icons.reply, color: Styles.orange),
-                        SizedBox(width: Styles.defaultSpacing),
-                        Text(
-                          "Responder",
-                          style: TextStyle(color: Styles.black),
-                        )
-                      ],
-                    ),
-                  ),
-                  LikeButton(comments[index]),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
+      itemBuilder: (_, index) => CommentCard(comments[index]),
     );
   }
 }
