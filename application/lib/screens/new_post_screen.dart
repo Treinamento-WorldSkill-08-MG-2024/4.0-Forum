@@ -1,3 +1,5 @@
+import 'package:application/modules/publications_modules.dart';
+import 'package:application/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 
 class NewPostScreen extends StatefulWidget {
@@ -16,7 +18,41 @@ class _NewPostScreenState extends State<NewPostScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        actions: [
+          TextButton(
+            onPressed: () async {
+              _formKey.currentState!.save();
+              if (!_formKey.currentState!.validate()) {
+                return;
+              }
+
+              final newPost = PostModel(
+                null,
+                _contentController.text,
+                _titleController.text,
+                true,
+                DateTime.now().toString(),
+                2,
+                0,
+                0,
+              );
+              final ok = await PublicationHandler().newPost(2, newPost);
+
+              if (!context.mounted) {
+                return;
+              }
+
+              if (ok) {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (_) => const HomeScreen()),
+                );
+              }
+            },
+            child: const Text("Enviar"),
+          ),
+        ],
+      ),
       body: Form(
         key: _formKey,
         child: Column(

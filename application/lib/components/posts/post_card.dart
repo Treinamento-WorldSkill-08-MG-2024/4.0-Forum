@@ -1,3 +1,4 @@
+import 'package:application/components/buttons/like_button.dart';
 import 'package:application/components/posts/post_header.dart';
 import 'package:application/design/styles.dart';
 import 'package:application/modules/publications_modules.dart';
@@ -45,25 +46,6 @@ class PostCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
-                  decoration: const BoxDecoration(),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(
-                          Icons.star_outline_outlined,
-                          color: Styles.orange,
-                          size: 28,
-                        ),
-                      ),
-                      const Text(
-                        "123",
-                        style: TextStyle(color: Styles.black),
-                      ),
-                    ],
-                  ),
-                ),
                 TextButton(
                   onPressed: () {},
                   child: Row(
@@ -77,13 +59,14 @@ class PostCard extends StatelessWidget {
                     ],
                   ),
                 ),
+                LikeButton(_post),
                 TextButton(
                   onPressed: () {},
                   child: const Row(
                     children: [
                       Icon(Icons.share, color: Styles.orange),
                       SizedBox(width: Styles.defaultSpacing),
-                      Text("69", style: TextStyle(color: Styles.black))
+                      Text("", style: TextStyle(color: Styles.black))
                     ],
                   ),
                 ),

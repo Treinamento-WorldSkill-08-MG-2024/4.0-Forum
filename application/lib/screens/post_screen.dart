@@ -1,3 +1,4 @@
+import 'package:application/components/buttons/like_button.dart';
 import 'package:application/components/home_app_bar.dart';
 import 'package:application/components/posts/comment_header.dart';
 import 'package:application/components/posts/post_card.dart';
@@ -105,25 +106,7 @@ class _PostScreenState extends State<PostScreen> {
                       ],
                     ),
                   ),
-                  Container(
-                    decoration: const BoxDecoration(),
-                    child: Row(
-                      children: [
-                        IconButton(
-                          onPressed: () {},
-                          icon: const Icon(
-                            Icons.star_outline_outlined,
-                            color: Styles.orange,
-                            size: 28,
-                          ),
-                        ),
-                        const Text(
-                          "123",
-                          style: TextStyle(color: Styles.black),
-                        ),
-                      ],
-                    ),
-                  ),
+                  LikeButton(comments[index]),
                 ],
               )
             ],

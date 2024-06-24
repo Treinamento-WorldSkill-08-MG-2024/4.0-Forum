@@ -4,58 +4,90 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
-class PostModel {
+sealed class IPublicationModel {
+  late final String uriKeyword;
   final int? id;
+  final String content;
+  final int likesCount;
+  final int commentsCount;
+
+  IPublicationModel(this.id, this.content, this.likesCount, this.commentsCount);
+}
+
+class PostModel extends IPublicationModel {
+  @override
+  get uriKeyword => "post";
+
+  final int? _id;
+  final String _content;
   final String title;
   final bool published;
   final String createdAt;
   final int authorID;
-  final int commentsCount;
 
   PostModel(
-    this.id, 
-    this.title, 
-    this.published, 
-    this.createdAt, 
-    this.authorID, 
-    this.commentsCount
-  );
+    this._id,
+    this._content,
+    this.title,
+    this.published,
+    this.createdAt,
+    this.authorID,
+    int commentsCount,
+    int likesCount,
+  ) : super(_id, _content, likesCount, commentsCount);
 
   factory PostModel.fromJson(Map<String, dynamic> json) {
     return switch (json) {
       {
         'id': int id,
+        'content': String content,
         'title': String title,
         'published': bool published,
         'created-at': String createdAt,
         'author-id': int authorID,
         'comments-count': int commentsCount,
+        'likes-count': int likesCount,
       } =>
-        PostModel(id, title, published, createdAt, authorID, commentsCount),
+        PostModel(id, content, title, published, createdAt, authorID,
+            commentsCount, likesCount),
       _ => throw const FormatException("Failed to convert json to post model")
     };
   }
 
   Map<String, dynamic> toJson() {
     return {
+      'id': _id,
       'title': title,
       'published': published,
-      'createdAt': createdAt,
-      'authorID': authorID,
-      'comments-count': commentsCount,
+      'created-at': createdAt,
+      'author-id': authorID,
+      'content': _content,
     };
   }
 }
 
-class CommentModel {
-  final int? id;
-  final String content;
+class CommentModel extends IPublicationModel {
+  @override
+  get uriKeyword => "comment";
+
+  final int? _id;
+  final String _content;
   final bool published;
   final int authorID;
   final int? postID;
   final int? commentID;
 
-  CommentModel(this.id, this.content, this.published, this.authorID, this.postID, this.commentID);
+  CommentModel(
+    this._id,
+    this._content,
+    this.published,
+    this.authorID,
+    this.postID,
+    this.commentID,
+    int likesCount,
+    int commentsCount,
+  ) : super(_id, _content, likesCount, commentsCount);
+
   factory CommentModel.fromJson(Map<String, dynamic> json) {
     return switch (json) {
       {
@@ -64,20 +96,32 @@ class CommentModel {
         'published': bool published,
         'author-id': int authorID,
         'post-id': int? postID,
+        'comment-id': int? commentID,
+        'likes-count': int likesCount,
+        'comments-count': int commentsCount,
       } =>
-        CommentModel(id, content, published, authorID, postID, null),
+        CommentModel(
+          id,
+          content,
+          published,
+          authorID,
+          postID,
+          commentID,
+          likesCount,
+          commentsCount,
+        ),
       _ => throw const FormatException("Failed to convert json to post model")
     };
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'content':  content,
-      'published':  published,
+      'id': _id,
+      'content': _content,
+      'published': published,
       'author-id': authorID,
-      'post-id':  postID,
-      'comment-id':  commentID,
+      'post-id': postID,
+      'comment-id': commentID,
     };
   }
 }
@@ -86,14 +130,18 @@ class PublicationHandler {
   static const _kBaseURL = "http://10.0.2.2:1323";
   static const _headers = {'Content-Type': "application/json"};
 
+  final http.Client _client;
+
+  PublicationHandler() : _client = http.Client();
+
   Future<List<PostModel>> loadFeed(int page) async {
-    final response = await http.Client().get(
+    final response = await _client.get(
       Uri.parse("$_kBaseURL/feed/$page"),
       headers: _headers,
     );
 
     final bodyData = jsonDecode(response.body) as Map<String, dynamic>;
-    assert(bodyData.containsKey("message"), "Response does not contain message key");
+    assert(bodyData.containsKey("message"));
 
     if (response.statusCode != 200) {
       if (kDebugMode) {
@@ -108,8 +156,8 @@ class PublicationHandler {
   }
 
   Future<List<CommentModel>> loadPostComments(int postID) async {
-    final response = await http.Client().get(
-      Uri.parse("$_kBaseURL/post/comments/$postID"), 
+    final response = await _client.get(
+      Uri.parse("$_kBaseURL/post/comments/$postID"),
       headers: _headers,
     );
 
@@ -118,7 +166,8 @@ class PublicationHandler {
     }
 
     final bodyData = jsonDecode(response.body) as Map<String, dynamic>;
-    assert(bodyData.containsKey("message"), "Response does not contain message key");
+    assert(bodyData.containsKey("message"),
+        "Response does not contain message key");
 
     if (response.statusCode != HttpStatus.ok) {
       if (kDebugMode) {
@@ -130,5 +179,91 @@ class PublicationHandler {
 
     final data = bodyData['message'] as List<dynamic>;
     return data.map((item) => CommentModel.fromJson(item)).toList();
+  }
+
+  Future<int> likePost(IPublicationModel publication, int currentUserID) async {
+    final response = await _client.post(
+      Uri.parse("$_kBaseURL/${publication.uriKeyword}/like"),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'user-id': currentUserID,
+        'post-id': publication is PostModel ? publication.id : null,
+        'comment-id': publication is CommentModel ? publication.id : null,
+      }),
+    );
+
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    if (response.statusCode != 200) {
+      if (kDebugMode) {
+        print(data);
+      }
+
+      throw Exception(data);
+    }
+
+    assert(data.containsKey("message"));
+    return data['message'] as int;
+  }
+
+  Future<bool> removeLikePost(int likeId) async {
+    final response = await _client.delete(
+      Uri.parse("$_kBaseURL/like/$likeId"),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode != HttpStatus.noContent) {
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      if (kDebugMode) {
+        print(data);
+      }
+
+      throw Exception(data);
+    }
+
+    return true;
+  }
+
+  Future<int> isPostLiked(
+    IPublicationModel publication,
+    int currentUserId,
+  ) async {
+    final response = await _client.get(
+      Uri.parse(
+        "$_kBaseURL/${publication.uriKeyword}/liked/${publication.id!}/$currentUserId",
+      ),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    final data = jsonDecode(response.body);
+    assert(data.containsKey("message"));
+
+    if (response.statusCode != HttpStatus.ok) {
+      if (kDebugMode) {
+        print(data);
+      }
+
+      throw Exception(data);
+    }
+
+    return data['message'] as int;
+  }
+
+  Future<bool> newPost(int currentUserID, PostModel post) async {
+    final response = await _client.post(
+      Uri.parse("$_kBaseURL/post"),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(post.toJson()),
+    );
+
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    if (response.statusCode != HttpStatus.ok) {
+      if (kDebugMode) {
+        print(data);
+      }
+
+      throw Exception(data);
+    }
+
+    return data['message'] != null;
   }
 }

@@ -53,6 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _postsFuture = _publicationHandler.loadFeed(_pageNumber);
     _postsFuture
         .then((posts) => setState(() {
+          print(posts);
               _isLastPage = posts.length < _postPerRequest;
               _pageNumber += 1;
 
