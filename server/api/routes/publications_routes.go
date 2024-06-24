@@ -17,7 +17,7 @@ func PublicationsRouter(db *sql.DB, e *echo.Echo) {
 	e.GET("/post/liked/:postId/:userId", getIsPostLiked)
 	e.GET("/comment/liked/:commentId/:userId", getIsCommentLiked)
 
-	e.POST("/comment/:id", postCommentRoute)
+	e.POST("/comment", postCommentRoute)
 	e.POST("/post", postPostRoute)
 	e.POST("/comment/like", postLike)
 	e.POST("/post/like", postLike)

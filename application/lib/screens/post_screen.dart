@@ -4,6 +4,7 @@ import 'package:application/components/posts/comment_header.dart';
 import 'package:application/components/posts/post_card.dart';
 import 'package:application/design/styles.dart';
 import 'package:application/modules/publications_modules.dart';
+import 'package:application/screens/new_comment_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -73,6 +74,15 @@ class _PostScreenState extends State<PostScreen> {
           ),
         ),
       ),
+      bottomNavigationBar: BottomAppBar(
+        height: MediaQuery.of(context).size.height * .08,
+        child: TextButton(
+          onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => NewCommentScreen(),
+          )),
+          child: const Text("Enviar Comentário"),
+        ),
+      ),
     );
   }
 
@@ -94,7 +104,14 @@ class _PostScreenState extends State<PostScreen> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => NewCommentScreen(
+                          originCommentContent: comments[index].content,
+                          originCommentAuthor: "Placeholder nome autor",
+                        ),
+                      ),
+                    ),
                     child: const Row(
                       children: [
                         Icon(Icons.reply, color: Styles.orange),
@@ -108,7 +125,7 @@ class _PostScreenState extends State<PostScreen> {
                   ),
                   LikeButton(comments[index]),
                 ],
-              )
+              ),
             ],
           ),
         ),

@@ -152,9 +152,6 @@ class PublicationHandler {
     }
 
     final data = bodyData['message'] as List<dynamic>;
-
-    print(data);
-    print(data[0]);
     return data.map((item) => PostModel.fromJson(item)).toList();
   }
 
