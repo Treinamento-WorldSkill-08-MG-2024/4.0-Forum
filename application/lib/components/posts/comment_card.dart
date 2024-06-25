@@ -16,15 +16,20 @@ class CommentCard extends StatefulWidget {
 }
 
 class _CommentCardState extends State<CommentCard> {
-  late final Future<List<CommentModel>> _repliesFuture;
+  late Future<List<CommentModel>> _repliesFuture;
 
   @override
   void initState() {
-    print(widget._comment.id);
     _repliesFuture =
         PublicationHandler().loadCommentReplies(widget._comment.id!);
-
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    _repliesFuture =
+        PublicationHandler().loadCommentReplies(widget._comment.id!);
+    super.didChangeDependencies();
   }
 
   @override
@@ -51,8 +56,8 @@ class _CommentCardState extends State<CommentCard> {
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (_) => NewCommentScreen(
-                          originCommentContent: widget._comment.content,
-                          originCommentAuthor: "Placeholder nome autor",
+                          widget._comment,
+                          originAuthor: "Placeholder nome autor",
                         ),
                       ),
                     ),
@@ -104,6 +109,7 @@ class _CommentCardState extends State<CommentCard> {
 
   Widget _loadReplies(List<CommentModel> comments) {
     return ListView.builder(
+      physics: const NeverScrollableScrollPhysics(),
       itemCount: comments.length,
       shrinkWrap: true,
       itemBuilder: (_, index) => CommentCard(comments[index]),

@@ -21,8 +21,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final _nextPageTrigger = .8;
   final _postPerRequest = 4;
 
-  late final List<PostModel> _posts;
   late final ScrollController _scrollController;
+  late List<PostModel> _posts;
   late Future<List<PostModel>> _postsFuture;
   late bool _isLastPage;
   late int _pageNumber;
@@ -39,6 +39,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
     _loadPosts();
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO - Make new post appear on top
+    _posts = List<PostModel>.empty(growable: true);
+    _loadPosts();
+    super.didChangeDependencies();
   }
 
   @override

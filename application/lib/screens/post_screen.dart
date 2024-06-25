@@ -17,14 +17,20 @@ class PostScreen extends StatefulWidget {
 }
 
 class _PostScreenState extends State<PostScreen> {
-  late final Future<List<CommentModel>> _commentsFuture;
+  late Future<List<CommentModel>> _commentsFuture;
 
   @override
   void initState() {
-    _commentsFuture =
-        PublicationHandler().loadPostComments(widget._post.id!);
+    _commentsFuture = PublicationHandler().loadPostComments(widget._post.id!);
 
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    _commentsFuture = PublicationHandler().loadPostComments(widget._post.id!);
+
+    super.didChangeDependencies();
   }
 
   @override
@@ -34,40 +40,43 @@ class _PostScreenState extends State<PostScreen> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              PostCard(widget._post),
-
-              const SizedBox(height: Styles.defaultSpacing * 2),
-
-              // ANCHOR - Comments
-              FutureBuilder(
-                future: _commentsFuture,
-                builder: (_, snapshot) {
-                  if (snapshot.hasError) {
-                    if (kDebugMode) {
-                      print(snapshot.error!);
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                PostCard(widget._post),
+            
+                const SizedBox(height: Styles.defaultSpacing * 2),
+            
+                // ANCHOR - Comments
+                FutureBuilder(
+                  future: _commentsFuture,
+                  builder: (_, snapshot) {
+                    if (snapshot.hasError) {
+                      if (kDebugMode) {
+                        print(snapshot.error!);
+                      }
+            
+                      return const Text("Houve um erro");
                     }
-
-                    return const Text("Houve um erro");
-                  }
-
-                  if (snapshot.connectionState == ConnectionState.done &&
-                      snapshot.hasData) {
-                    if (snapshot.data!.isEmpty) {
-                      return const Center(
-                        child: Text("Nenhum comentário encontrado"),
-                      );
+            
+                    if (snapshot.connectionState == ConnectionState.done &&
+                        snapshot.hasData) {
+                      if (snapshot.data!.isEmpty) {
+                        return const Center(
+                          child: Text("Nenhum comentário encontrado"),
+                        );
+                      }
+            
+                      return _commentsFeed(snapshot.data!);
                     }
-
-                    return _commentsFeed(snapshot.data!);
-                  }
-
-                  return const CircularProgressIndicator();
-                },
-              ),
-            ],
+            
+                    return const CircularProgressIndicator();
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -85,8 +94,9 @@ class _PostScreenState extends State<PostScreen> {
 
   Widget _commentsFeed(List<CommentModel> comments) {
     return ListView.builder(
-      itemCount: comments.length,
+      physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
+      itemCount: comments.length,
       itemBuilder: (_, index) => CommentCard(comments[index]),
     );
   }

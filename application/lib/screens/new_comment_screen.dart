@@ -11,8 +11,9 @@ class NewCommentScreen extends StatelessWidget {
   NewCommentScreen(this._originPublication, {super.key, String? originAuthor})
       : _isReply = _originPublication is CommentModel,
         _originAuthor = originAuthor,
-        assert(_originPublication.id != null),
-        assert(_originPublication is CommentModel && originAuthor != null);
+        assert(_originPublication is! CommentModel || originAuthor != null),
+        assert(_originPublication is! CommentModel ||
+            _originPublication.id != null);
 
   final _formKey = GlobalKey<FormState>();
   final _contentController = TextEditingController();
@@ -71,7 +72,7 @@ class NewCommentScreen extends StatelessWidget {
           padding: const EdgeInsets.all(Styles.defaultSpacing),
           child: Column(
             children: [
-              !_isReply
+              _isReply
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

@@ -39,7 +39,7 @@ func (comment Comment) Query(db *sql.DB, page int) ([]Comment, error) {
 		}
 
 		c.LikesCount = likesCount
-		print(c)
+		fmt.Println(c)
 		return nil
 	}, postID, commentID)
 }
