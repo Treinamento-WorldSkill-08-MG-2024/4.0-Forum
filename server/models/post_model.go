@@ -44,7 +44,7 @@ func (Post) Query(db *sql.DB, page int) ([]Post, error) {
 
 		p.CommentsCount = commentsCount
 		p.LikesCount = likesCount
-
+		fmt.Println(p)
 		return nil
 	}, itemsCount, offset)
 }

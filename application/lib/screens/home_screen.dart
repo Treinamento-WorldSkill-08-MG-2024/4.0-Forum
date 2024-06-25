@@ -36,8 +36,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     _isLastPage = true;
     _pageNumber = 0;
-
-    _loadPosts();
     super.initState();
   }
 
@@ -56,6 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _loadPosts() {
+    print("LOAD POST");
     _isLoading = true;
 
     _postsFuture = _publicationHandler.loadFeed(_pageNumber);

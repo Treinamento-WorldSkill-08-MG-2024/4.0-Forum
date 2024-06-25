@@ -30,8 +30,9 @@ func InitDatabase() *sql.DB {
 	}
 
 	db.SetConnMaxIdleTime(time.Minute * 5)
-	db.SetMaxOpenConns(10)
-	db.SetMaxIdleConns(10)
+	//FIXME
+	// db.SetMaxOpenConns(50)
+	// db.SetMaxIdleConns(50)
 
 	return db
 }

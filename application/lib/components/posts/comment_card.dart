@@ -86,7 +86,7 @@ class _CommentCardState extends State<CommentCard> {
                     print(snapshot.error!);
                   }
 
-                  return Text("Houve um erro");
+                  return const Text("Houve um erro");
                 }
 
                 if (snapshot.hasData &&

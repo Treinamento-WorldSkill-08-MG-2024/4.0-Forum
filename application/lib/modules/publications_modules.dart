@@ -142,17 +142,17 @@ class PublicationHandler {
       headers: _headers,
     );
 
-    final bodyData = jsonDecode(response.body) as Map<String, dynamic>;
-    assert(bodyData.containsKey("message"));
+    final bodyData = jsonDecode(response.body);
 
     if (response.statusCode != 200) {
       if (kDebugMode) {
-        print(bodyData['message']);
+        print(bodyData);
       }
 
-      throw Exception(bodyData['message']);
+      throw Exception(bodyData);
     }
 
+    assert(bodyData.containsKey("message"));
     final data = bodyData['message'] as List<dynamic>;
     return data.map((item) => PostModel.fromJson(item)).toList();
   }

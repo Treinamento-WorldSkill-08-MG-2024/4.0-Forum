@@ -2,6 +2,9 @@ package models
 
 import (
 	"database/sql"
+	"errors"
+	"fmt"
+	"os"
 
 	"github.com/Treinamento-WorldSkill-08-MG-2024/ArchForum/server/lib"
 )
@@ -18,6 +21,11 @@ func (like Like) Insert(db *sql.DB) (int64, error) {
 
 	postID := lib.SafeDerefComparable(like.PostID)
 	commentID := lib.SafeDerefComparable(like.CommentID)
+	if postID == nil && commentID == nil {
+		fmt.Fprintf(os.Stderr, "postID & commentID cannot be both null\n")
+		return -1, errors.New("postID & commentID cannot be both null")
+	}
+
 	return insertFactory(db, query, like.UserID, postID, commentID)
 }
 

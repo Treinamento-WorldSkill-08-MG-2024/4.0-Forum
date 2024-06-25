@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"os"
 
@@ -23,6 +24,10 @@ type Comment struct {
 func (comment Comment) Query(db *sql.DB, page int) ([]Comment, error) {
 	postID := lib.SafeDerefComparable(comment.PostID)
 	commentID := lib.SafeDerefComparable(comment.CommentID)
+	if postID == nil && commentID == nil {
+		fmt.Fprintf(os.Stderr, "postID & commentID cannot be both null\n")
+		return nil, errors.New("postID & commentID cannot be both null")
+	}
 
 	query := `SELECT * FROM comment WHERE (postID=? AND commentID IS NULL) OR (postID IS NULL AND commentID=?)`
 	return queryFactory(db, query, func(c *Comment, rows *sql.Rows) error {
@@ -34,12 +39,10 @@ func (comment Comment) Query(db *sql.DB, page int) ([]Comment, error) {
 		likesCount, err := c.countLikes(db)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "failed o count likes in comment")
-
 			return err
 		}
 
 		c.LikesCount = likesCount
-		fmt.Println(c)
 		return nil
 	}, postID, commentID)
 }
