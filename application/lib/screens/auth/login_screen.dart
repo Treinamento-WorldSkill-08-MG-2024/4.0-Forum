@@ -149,8 +149,15 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     try {
-      final user = await _authHandler.login(
-          _emailController.text, _passwordController.text);
+      final ok = await _authHandler.login(
+        context,
+        _emailController.text,
+        _passwordController.text,
+      );
+
+      if (!ok) {
+        throw Exception("Tente novamente mais tarde");
+      }
 
       if (!mounted) {
         return;
@@ -168,10 +175,6 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const HomeScreen()),
       );
-
-      if (kDebugMode) {
-        print(user);
-      }
     } catch (error) {
       if (kDebugMode) {
         print(error);

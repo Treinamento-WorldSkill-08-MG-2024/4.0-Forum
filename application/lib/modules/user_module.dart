@@ -1,6 +1,6 @@
 part of './auth_modules.dart';
 
-class Object {
+class UserModel {
   final int? id;
   final String name;
   final String email;
@@ -8,8 +8,8 @@ class Object {
 
   String? authToken;
 
-  Object(this.id, this.name, this.email, this.password, {this.authToken});
-  factory Object.fromJson(Map<String, dynamic> json, {String? token}) {
+  UserModel(this.id, this.name, this.email, this.password, {this.authToken});
+  factory UserModel.fromJson(Map<String, dynamic> json, {String? token}) {
     return switch (json) {
       {
         'id': int id,
@@ -17,7 +17,7 @@ class Object {
         'email': String email,
         'password': String password,
       } =>
-        Object(id, name, email, password, authToken: token),
+        UserModel(id, name, email, password, authToken: token),
       _ => throw const FormatException("Fail to convert json to user model")
     };
   }
@@ -30,7 +30,7 @@ class Object {
 class UserHandler {
   static const _kBaseURL = "http://10.0.2.2:1323/user";
 
-  Future<Object> getUserData(int id) async {
+  Future<UserModel> getUserData(int id) async {
     final response = await http.Client().get(
       Uri.parse("$_kBaseURL/$id"),
       headers: {'Content-Type': 'application/json'},
@@ -40,7 +40,7 @@ class UserHandler {
     assert(bodyData.containsKey("message"), "Login response does not contain message key");
 
     final data = bodyData['message'];
-    if (response.statusCode != 200) {
+    if (response.statusCode != HttpStatus.ok) {
       if (kDebugMode) {
         print(data);
       }
@@ -48,6 +48,6 @@ class UserHandler {
       throw Exception(data);
     }
 
-    return Object.fromJson(data);
+    return UserModel.fromJson(data);
   }
 }

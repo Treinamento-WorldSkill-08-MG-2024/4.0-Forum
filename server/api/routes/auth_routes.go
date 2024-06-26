@@ -140,7 +140,7 @@ func authenticateRoute(context echo.Context) error {
 		return context.JSON(http.StatusNotFound, lib.JsonResponse{Message: "User not found"})
 	}
 
-	return context.JSON(http.StatusAccepted, lib.JsonResponse{Message: user})
+	return context.JSON(http.StatusOK, lib.JsonResponse{Message: user})
 }
 
 const (

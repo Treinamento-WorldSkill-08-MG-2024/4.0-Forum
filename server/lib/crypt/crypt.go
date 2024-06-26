@@ -4,6 +4,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"encoding/base64"
 	"fmt"
 	"io"
 )
@@ -25,7 +26,8 @@ func Encrypt_AES256(data string, key string) (string, error) {
 	}
 
 	dataBuffer := aesGCM.Seal(nonce, nonce, []byte(data), nil)
-	return string(dataBuffer), nil
+	encodedData := base64.StdEncoding.EncodeToString(dataBuffer)
+	return encodedData, nil
 }
 
 func Decrypt_AES256(encryptedData string, key string) (string, error) {
@@ -39,8 +41,13 @@ func Decrypt_AES256(encryptedData string, key string) (string, error) {
 		return "", fmt.Errorf("failed to create gcm for aes block: %s", err)
 	}
 
+	decodedData, err := base64.StdEncoding.DecodeString(encryptedData)
+	if err != nil {
+		return "", fmt.Errorf("failed to decoded base64 for encrypted data")
+	}
+
 	nonceSize := aesGCM.NonceSize()
-	nonce, ciphertext := encryptedData[:nonceSize], encryptedData[nonceSize:]
+	nonce, ciphertext := decodedData[:nonceSize], decodedData[nonceSize:]
 
 	plaintext, err := aesGCM.Open(nil, []byte(nonce), []byte(ciphertext), nil)
 	if err != nil {

@@ -2,15 +2,15 @@ import 'package:application/components/arch_bottom_bar.dart';
 import 'package:application/components/home_app_bar.dart';
 import 'package:application/components/posts/post_card.dart';
 import 'package:application/components/profile_drawer.dart';
-import 'package:application/modules/auth_modules.dart';
 import 'package:application/modules/publications_modules.dart';
+import 'package:application/providers/auth_provider.dart';
 import 'package:application/screens/post_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
-  final Object? currentUser;
-  const HomeScreen({super.key, this.currentUser});
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -54,7 +54,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _loadPosts() {
-    print("LOAD POST");
     _isLoading = true;
 
     _postsFuture = _publicationHandler.loadFeed(_pageNumber);

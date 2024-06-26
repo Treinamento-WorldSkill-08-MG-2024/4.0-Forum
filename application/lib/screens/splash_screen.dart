@@ -1,10 +1,11 @@
 import 'package:application/modules/auth_modules.dart';
+import 'package:application/providers/auth_provider.dart';
 import 'package:application/screens/auth/login_screen.dart';
 import 'package:application/screens/home_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -16,22 +17,21 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   bool _apiConnectionFailed = false;
 
-  Future<bool?> _helloWorld() async {
-    final prefs = await SharedPreferences.getInstance();
-
+  Future<UserModel?> _helloWorld() async {
     final response =
         await Client().get(Uri.parse('http://10.0.2.2:1323/helloworld'));
     if (response.statusCode != 200) {
       throw Exception("Failed to perform first connection");
     }
 
-    final token = prefs.get(UserModelFields.token);
-    if (token == null) {
+    if (!mounted) {
       return null;
     }
 
-    // return await AuthHandler().isAuthenticated(token as String);
-    return true;
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    await authProvider.authenticateUser();
+
+    return authProvider.currentUser;
   }
 
   @override
@@ -42,7 +42,7 @@ class _SplashScreenState extends State<SplashScreen> {
             ? Navigator.of(context)
               .pushReplacement(MaterialPageRoute(builder: (_) => const LoginScreen()))
             : Navigator.of(context)
-              .pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen(currentUser: null)))
+              .pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()))
         )
         .catchError((error) { 
           setState(() => _apiConnectionFailed = true);

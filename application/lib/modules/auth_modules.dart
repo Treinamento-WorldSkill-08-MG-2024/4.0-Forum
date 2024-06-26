@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:application/providers/auth_provider.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 
 part './user_module.dart';
 
@@ -13,7 +16,11 @@ class UserModelFields {
 class AuthHandler {
   static const _kBaseURL = "http://10.0.2.2:1323/auth";
 
-  Future<Object> login(String email, String password) async {
+  Future<bool> login(
+    BuildContext context,
+    String email,
+    String password,
+  ) async {
     final response = await http.Client().post(
       Uri.parse("$_kBaseURL/login"),
       headers: {'Content-Type': 'application/json'},
@@ -21,11 +28,10 @@ class AuthHandler {
     );
 
     final bodyData = jsonDecode(response.body) as Map<String, dynamic>;
-    assert(bodyData.containsKey("message"),
-        "Login response does not contain message key");
+    assert(bodyData.containsKey("message"));
 
     final data = bodyData['message'];
-    if (response.statusCode != 200) {
+    if (response.statusCode != HttpStatus.ok) {
       if (kDebugMode) {
         print(data);
       }
@@ -33,45 +39,54 @@ class AuthHandler {
       throw Exception(data);
     }
 
-    assert(data.containsKey("token"), "Login response does not contain token key");
-    assert(data.containsKey("user"), "Login response does not contain user key");
+    assert(
+        data.containsKey("token"), "Login response does not contain token key");
+    assert(
+        data.containsKey("user"), "Login response does not contain user key");
     final token = data["token"] as String;
 
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(UserModelFields.token, data['token']);
+    if (!context.mounted) {
+      return false;
+    }
 
-    return Object.fromJson(data['user'], token: token);
+    await Provider.of<AuthProvider>(context, listen: false)
+        .authenticateUser(incomingToken: token);
+    return true;
   }
 
-  Future<Object?> isAuthenticated(String token) async {
+  Future<UserModel?> isAuthenticated(String token) async {
     final response = await http.Client().post(
       Uri.parse(_kBaseURL),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'token': token}),
     );
 
-    final data = jsonDecode(response.body) as Map<String, dynamic>;
-    
-    if (response.statusCode != 202) {
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == HttpStatus.unauthorized) {
+      return null;
+    }
+
+    if (response.statusCode != HttpStatus.ok) {
       if (kDebugMode) {
         print(data);
       }
 
-      // throw Exception("Falha ao autenticar usuário");
-      return null;
+      throw Exception("Falha ao autenticar usuário");
     }
 
-    return Object.fromJson(data);
+    assert((data as Map<String, dynamic>).containsKey("message"));
+    return UserModel.fromJson(data["message"]);
   }
 
-  Future<bool> register(Object userData) async {
+  Future<bool> register(UserModel userData) async {
     final response = await http.Client().post(
       Uri.parse("$_kBaseURL/register"),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(userData.toJson()),
     );
 
-    if (response.statusCode != 201) {
+    if (response.statusCode != HttpStatus.created) {
       throw Exception("Falha ao registrar usuário");
     }
 

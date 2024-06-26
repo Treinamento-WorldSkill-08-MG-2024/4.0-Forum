@@ -13,7 +13,7 @@ class CommentHeader extends StatefulWidget {
 }
 
 class _CommentHeaderState extends State<CommentHeader> {
-  late final Future<Object> _authorFuture;
+  late final Future<UserModel> _authorFuture;
 
   @override
   void initState() {
@@ -51,7 +51,7 @@ class _CommentHeaderState extends State<CommentHeader> {
     );
   }
 
-  Widget _userInfoRow(Object user) {
+  Widget _userInfoRow(UserModel user) {
     return Row(
       children: [
         CircleAvatar(
