@@ -93,4 +93,42 @@ class AuthHandler {
     final data = jsonDecode(response.body) as Map<String, dynamic>;
     return data.containsKey('message') && data['message'] != null;
   }
+
+  Future<int?> forgot(String email) async {
+    final response = await http.Client().post(
+      Uri.parse("$_kBaseURL/forgot"),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({"email": email}),
+    );
+
+    final data = jsonDecode(response.body) as dynamic;
+    if (response.statusCode != HttpStatus.ok) {
+      if (kDebugMode) {
+        print(data as String);
+      }
+
+      throw Exception("Falha ao enviar email");
+    }
+
+    return data['message'];
+  }
+
+  Future<bool> validate(int id, String code) async {
+    final response = await http.Client().post(
+      Uri.parse("$_kBaseURL/validate"),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({"id": id, "temp-code": code}),
+    );
+
+    if (response.statusCode != HttpStatus.ok) {
+      final data = jsonDecode(response.body) as dynamic;
+      if (kDebugMode) {
+        print(data as String);
+      }
+
+      throw Exception("Falha ao validar código");
+    }
+
+    return true;
+  }
 }

@@ -38,6 +38,7 @@ func AuthRouter(db *sql.DB, e *echo.Echo) {
 	e.POST("/auth/login", loginRoute)
 	e.POST("/auth/register", registerRoute)
 	e.POST("/auth/forgot", forgotRoute)
+	e.POST("/auth/validate", validateRoute)
 	e.POST("auth/changePassword", changePasswordRoute)
 }
 
@@ -199,6 +200,60 @@ func changePasswordRoute(context echo.Context) error {
 	return context.NoContent(http.StatusOK)
 }
 
+func validateRoute(context echo.Context) error {
+	user := new(models.User)
+	if err := context.Bind(user); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to bind user data %s\n", err)
+
+		return context.JSON(http.StatusBadRequest, lib.JsonResponse{Message: "Invalid request body"})
+	}
+
+	if user.TempCode == nil {
+		fmt.Fprintf(os.Stderr, "failed to bind user data\n")
+
+		return context.JSON(http.StatusBadRequest, lib.JsonResponse{Message: "Invalid request body"})
+	}
+
+	expectedTempCode := (*user.TempCode)[:recuperationCodeBytesLength]
+
+	foundUser, err := user.QueryUserByID(*internal_db, user.ID)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s", err)
+		return context.JSON(http.StatusInternalServerError, lib.JsonResponse{Message: "Failed to query user data"})
+	}
+
+	if !foundUser {
+		return context.JSON(http.StatusNotFound, lib.JsonResponse{Message: "User not found"})
+	}
+
+	if expectedTempCode != (*user.TempCode)[:recuperationCodeBytesLength] {
+		fmt.Println(expectedTempCode, (*user.TempCode)[:recuperationCodeBytesLength])
+		return context.JSON(http.StatusUnauthorized, lib.JsonResponse{Message: "Invalid token"})
+	}
+
+	stringExpDate := (*user.TempCode)[recuperationCodeBytesLength : expDateBytesLength+recuperationCodeBytesLength-1]
+
+	expDate, err := time.Parse(time.DateTime, stringExpDate)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to read expiration data %s\n", err)
+
+		return context.JSON(http.StatusBadRequest, lib.JsonResponse{Message: "Invalid request body"})
+	}
+
+	nowFormatted, err := time.Parse(time.DateTime, time.Now().Format(time.DateTime))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to read expiration data %s\n", err)
+
+		return context.JSON(http.StatusBadRequest, lib.JsonResponse{Message: "Invalid request body"})
+	}
+
+	if nowFormatted.After(expDate) {
+		return context.JSON(http.StatusUnauthorized, lib.JsonResponse{Message: "Token Expired"})
+	}
+
+	return context.NoContent(http.StatusOK)
+}
+
 func authenticateRoute(context echo.Context) error {
 	type reqPayload struct {
 		Token string `json:"token"`
@@ -219,9 +274,9 @@ func authenticateRoute(context echo.Context) error {
 	}
 
 	stringID := token[:userIdBytesLength]
-	stringExpDate := token[userIdBytesLength:expDateBytesLength]
+	stringExpDate := token[userIdBytesLength : expDateBytesLength+3]
 
-	formatExpData := stringExpDate + ":00"
+	formatExpData := stringExpDate
 	expDate, err := time.Parse(time.DateTime, formatExpData)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to read expiration data %s\n", err)
@@ -229,7 +284,14 @@ func authenticateRoute(context echo.Context) error {
 		return context.JSON(http.StatusBadRequest, lib.JsonResponse{Message: "Invalid request body"})
 	}
 
-	if time.Now().After(expDate) {
+	nowFormatted, err := time.Parse(time.DateTime, time.Now().Format(time.DateTime))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to read expiration data %s\n", err)
+
+		return context.JSON(http.StatusBadRequest, lib.JsonResponse{Message: "Invalid request body"})
+	}
+
+	if nowFormatted.After(expDate) {
 		return context.JSON(http.StatusUnauthorized, lib.JsonResponse{Message: "Token Expired"})
 	}
 
