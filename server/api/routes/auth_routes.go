@@ -133,7 +133,70 @@ func forgotRoute(context echo.Context) error {
 		return context.JSON(http.StatusInternalServerError, lib.ApiResponse{"message": "Failed to send email:"})
 	}
 
-	return context.NoContent(http.StatusNoContent)
+	return context.JSON(http.StatusOK, lib.JsonResponse{Message: user.ID})
+}
+
+func changePasswordRoute(context echo.Context) error {
+	user := new(models.User)
+	if err := context.Bind(user); err != nil {
+		fmt.Fprintf(os.Stderr, "failed to bind user data %s\n", err)
+
+		return context.JSON(http.StatusBadRequest, lib.JsonResponse{Message: "Invalid request body"})
+	}
+
+	if user.TempCode == nil {
+		fmt.Fprintf(os.Stderr, "failed to bind user data\n")
+
+		return context.JSON(http.StatusBadRequest, lib.JsonResponse{Message: "Invalid request body"})
+	}
+
+	expectedTempCode := (*user.TempCode)[:recuperationCodeBytesLength]
+	reqPassword := user.Password
+
+	foundUser, err := user.QueryUserByID(*internal_db, user.ID)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s", err)
+		return context.JSON(http.StatusInternalServerError, lib.JsonResponse{Message: "Failed to query user data"})
+	}
+
+	if !foundUser {
+		return context.JSON(http.StatusNotFound, lib.JsonResponse{Message: "User not found"})
+	}
+
+	if expectedTempCode != (*user.TempCode)[:recuperationCodeBytesLength] {
+		fmt.Println(expectedTempCode, (*user.TempCode)[:recuperationCodeBytesLength])
+		return context.JSON(http.StatusUnauthorized, lib.JsonResponse{Message: "Invalid token"})
+	}
+
+	stringExpDate := (*user.TempCode)[recuperationCodeBytesLength : expDateBytesLength+recuperationCodeBytesLength-1]
+
+	expDate, err := time.Parse(time.DateTime, stringExpDate)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to read expiration data %s\n", err)
+
+		return context.JSON(http.StatusBadRequest, lib.JsonResponse{Message: "Invalid request body"})
+	}
+
+	nowFormatted, err := time.Parse(time.DateTime, time.Now().Format(time.DateTime))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to read expiration data %s\n", err)
+
+		return context.JSON(http.StatusBadRequest, lib.JsonResponse{Message: "Invalid request body"})
+	}
+
+	if nowFormatted.After(expDate) {
+		return context.JSON(http.StatusUnauthorized, lib.JsonResponse{Message: "Token Expired"})
+	}
+
+	user.Password = reqPassword
+	result, err := user.UpdatePassword(*internal_db)
+	if err != nil || result <= 0 {
+		fmt.Fprintf(os.Stderr, "%s", err)
+
+		return context.JSON(http.StatusInternalServerError, lib.ApiResponse{"Message": "failed to update password"})
+	}
+
+	return context.NoContent(http.StatusOK)
 }
 
 func authenticateRoute(context echo.Context) error {
@@ -189,10 +252,6 @@ func authenticateRoute(context echo.Context) error {
 	}
 
 	return context.JSON(http.StatusOK, lib.JsonResponse{Message: user})
-}
-
-func changePasswordRoute(context echo.Context) error {
-	return nil
 }
 
 func buildToken(id string, idBytesLength uint8, dateOffset int) (string, error) {

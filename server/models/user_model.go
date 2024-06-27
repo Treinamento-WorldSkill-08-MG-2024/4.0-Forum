@@ -11,11 +11,11 @@ import (
 )
 
 type User struct {
-	ID       int    `json:"id" query:"ID"`
-	Name     string `json:"name" query:"name"`
-	Email    string `json:"email" query:"email"`
-	Password string `json:"password" query:"password"`
-	TempCode *string
+	ID       int     `json:"id" query:"ID"`
+	Name     string  `json:"name" query:"name"`
+	Email    string  `json:"email" query:"email"`
+	Password string  `json:"password" query:"password"`
+	TempCode *string `json:"temp-code" query:"tempCode"`
 }
 
 func (User) Query(db *sql.DB) ([]User, error) {
@@ -80,6 +80,25 @@ func (user User) UpdateTempCode(db *sql.DB) (int64, error) {
 
 	query := `UPDATE users SET tempCode=? WHERE id=?`
 	updateResult, err := db.ExecContext(context.Background(), query, tempCode, user.ID)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to insert user: %s\n", err)
+
+		return -1, err
+	}
+
+	id, err := updateResult.RowsAffected()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to retrieve last inserted id: %s\n", err)
+
+		return -1, err
+	}
+
+	return id, err
+}
+
+func (user User) UpdatePassword(db *sql.DB) (int64, error) {
+	query := "UPDATE users SET `password`=? WHERE id=?"
+	updateResult, err := db.ExecContext(context.Background(), query, user.Password, user.ID)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to insert user: %s\n", err)
 
