@@ -161,8 +161,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       }
 
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => ChangePasswordScreen()),
-      );
+        MaterialPageRoute(builder: (_) => ChangePasswordScreen(_codeController.text, _userID),
+      ));
     } catch (error) {
       if (kDebugMode) {
         print(error);

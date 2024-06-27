@@ -131,4 +131,23 @@ class AuthHandler {
 
     return true;
   }
+
+  Future<bool> changePassword(int id, String code, String password) async {
+    final response = await http.Client().post(
+      Uri.parse("$_kBaseURL/changePassword"),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({"id": id, "temp-code": code, "password": password}),
+    );
+
+    if (response.statusCode != HttpStatus.ok) {
+      final data = jsonDecode(response.body) as dynamic;
+      if (kDebugMode) {
+        print(data as String);
+      }
+
+      throw Exception("Falha a trocar sua senha");
+    }
+
+    return true;
+  }
 }
