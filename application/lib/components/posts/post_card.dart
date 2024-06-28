@@ -53,7 +53,16 @@ class PostCard extends StatelessWidget {
                   },
                   child: Row(
                     children: [
-                      const Icon(Icons.chat, color: Styles.orange),
+                      IconButton(
+                        icon: const Icon(Icons.chat, color: Styles.orange),
+                        onPressed: () => !Navigator.of(context).canPop()
+                            ? Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => PostScreen(_post),
+                                ),
+                              )
+                            : null,
+                      ),
                       const SizedBox(width: Styles.defaultSpacing),
                       Text(
                         _post.commentsCount.toString(),

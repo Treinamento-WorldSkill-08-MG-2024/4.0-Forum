@@ -24,7 +24,7 @@ class AuthHandler {
     final response = await http.Client().post(
       Uri.parse("$_kBaseURL/login"),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'name': email, 'password': password}),
+      body: jsonEncode({'email': email, 'password': password}),
     );
 
     final bodyData = jsonDecode(response.body) as Map<String, dynamic>;
@@ -39,19 +39,16 @@ class AuthHandler {
       throw Exception(data);
     }
 
-    assert(
-        data.containsKey("token"), "Login response does not contain token key");
-    assert(
-        data.containsKey("user"), "Login response does not contain user key");
+    assert(data.containsKey("token"));
+    assert(data.containsKey("user"));
     final token = data["token"] as String;
 
     if (!context.mounted) {
       return false;
     }
 
-    await Provider.of<AuthProvider>(context, listen: false)
+    return Provider.of<AuthProvider>(context, listen: false)
         .authenticateUser(incomingToken: token);
-    return true;
   }
 
   Future<UserModel?> isAuthenticated(String token) async {
@@ -62,6 +59,7 @@ class AuthHandler {
     );
 
     final data = jsonDecode(response.body);
+    print(data);
 
     if (response.statusCode == HttpStatus.unauthorized) {
       return null;

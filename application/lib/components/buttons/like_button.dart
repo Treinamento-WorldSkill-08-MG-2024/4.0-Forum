@@ -1,5 +1,6 @@
 import 'package:application/design/styles.dart';
 import 'package:application/modules/publications_modules.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class LikeButton extends StatefulWidget {
@@ -28,7 +29,13 @@ class _LikeButtonState extends State<LikeButton> {
             _likeId = val;
           }),
         )
-        .catchError((error) => print('error'));
+        .catchError(
+      (error) {
+        if (kDebugMode) {
+          print('error');
+        }
+      },
+    );
 
     _isLiked = false;
     _likeCount = widget._publication.likesCount;

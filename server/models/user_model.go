@@ -37,6 +37,10 @@ func (user *User) QueryUserByName(db *sql.DB, name string) (bool, error) {
 		return true, errors.New("more than one user found when it should be only one")
 	}
 
+	if len(users) <= 0 {
+		return false, nil
+	}
+
 	return true, nil
 }
 
@@ -50,7 +54,11 @@ func (user *User) QueryUserByEmail(db *sql.DB, email string) (bool, error) {
 	}
 
 	if len(users) > 1 {
-		return true, errors.New("more than one user found when it should be only one")
+		return false, errors.New("more than one user found when it should be only one")
+	}
+
+	if len(users) <= 0 {
+		return false, nil
 	}
 
 	return true, nil
@@ -67,6 +75,10 @@ func (user *User) QueryUserByID(db *sql.DB, id int) (bool, error) {
 
 	if len(users) > 1 {
 		return true, errors.New("more than one user found when it should be only one")
+	}
+
+	if len(users) <= 0 {
+		return false, nil
 	}
 
 	return true, nil

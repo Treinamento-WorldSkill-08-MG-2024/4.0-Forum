@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthProvider with ChangeNotifier {
   UserModel? currentUser;
 
-  Future authenticateUser({String? incomingToken}) async {
+  Future<bool> authenticateUser({String? incomingToken}) async {
     final prefs = await SharedPreferences.getInstance();
 
     final token = incomingToken ?? prefs.getString(UserModelFields.token);
@@ -14,11 +14,13 @@ class AuthProvider with ChangeNotifier {
       currentUser = null;
       notifyListeners();
 
-      return;
+      return false;
     }
 
     currentUser = await AuthHandler().isAuthenticated(token);
+    prefs.setString(UserModelFields.token, token);
     notifyListeners();
+    return true;
   }
 
   void redirectIfNotAuthenticated(BuildContext context) {

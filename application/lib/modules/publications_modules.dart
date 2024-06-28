@@ -32,10 +32,10 @@ class PostModel extends IPublicationModel {
     this.title,
     this.published,
     this.createdAt,
-    this.authorID,
-    int commentsCount,
-    int likesCount,
-  ) : super(_id, _content, likesCount, commentsCount);
+    this.authorID, {
+    int commentsCount = 0,
+    int likesCount = 0,
+  }) : super(_id, _content, likesCount, commentsCount);
 
   factory PostModel.fromJson(Map<String, dynamic> json) {
     return switch (json) {
@@ -50,7 +50,7 @@ class PostModel extends IPublicationModel {
         'likes-count': int likesCount,
       } =>
         PostModel(id, content, title, published, createdAt, authorID,
-            commentsCount, likesCount),
+            commentsCount: commentsCount, likesCount: likesCount),
       _ => throw const FormatException("Failed to convert json to post model")
     };
   }

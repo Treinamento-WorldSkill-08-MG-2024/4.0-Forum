@@ -1,6 +1,9 @@
 import 'package:application/design/styles.dart';
 import 'package:application/modules/publications_modules.dart';
+import 'package:application/providers/auth_provider.dart';
+import 'package:application/screens/auth/login_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class NewCommentScreen extends StatelessWidget {
   final IPublicationModel _originPublication;
@@ -41,17 +44,28 @@ class NewCommentScreen extends StatelessWidget {
                   return;
                 }
 
+                final currentUser =
+                    Provider.of<AuthProvider>(context, listen: false).currentUser;
+                if (currentUser == null) {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (_) => const LoginScreen(),
+                    ),
+                  );
+                }
+
+                assert(currentUser!.id != null);
                 final newComment = CommentModel(
                   null,
                   _contentController.text,
                   true,
-                  2,
+                  currentUser!.id!,
                   _isReply ? null : _originPublication.id,
                   _isReply ? _originPublication.id : null,
                 );
 
                 final ok = await PublicationHandler.given(newComment)
-                    .newPublication(2);
+                    .newPublication(currentUser.id!);
 
                 if (!context.mounted) {
                   return;

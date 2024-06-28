@@ -3,6 +3,7 @@ import 'package:application/components/toats.dart';
 import 'package:application/design/styles.dart';
 import 'package:application/modules/auth_modules.dart';
 import 'package:application/screens/auth/login_screen.dart';
+import 'package:application/utils/extensions.dart';
 import 'package:flutter/material.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -43,71 +44,103 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const Text("Comece inserindo suas informações cadastrais"),
                   const SizedBox(height: Styles.defaultSpacing * 4),
-                  Form(
-                    key: _formkey,
-                    child: Column(
-                      children: [
-                        ArchFormField(
-                          hintText: "Nome",
-                          controller: _nameController,
-                        ),
-                        const SizedBox(height: Styles.defaultSpacing),
-                        ArchFormField(
-                          hintText: "Email",
-                          controller: _emailController,
-                        ),
-                        const SizedBox(height: Styles.defaultSpacing),
-                        ArchFormField(
-                          hintText: "Senha",
-                          controller: _passwordController,
-                        ),
-                      ],
-                    ),
-                  ),
+                  _form(),
                 ],
               ),
-              Padding(
-                padding:
-                    const EdgeInsets.only(bottom: Styles.defaultSpacing * 2),
-                child: Column(
-                  children: [
-                    const Text(
-                      "Ao continuar, você estará aceitando nossos termos e condições do usuário.",
-                      textAlign: TextAlign.center,
+              _submitButton(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Padding _submitButton() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Styles.defaultSpacing * 2),
+      child: Column(
+        children: [
+          const Text(
+            "Ao continuar, você estará aceitando nossos termos e condições do usuário.",
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: Styles.defaultSpacing),
+          Row(
+            children: [
+              Expanded(
+                child: FilledButton(
+                  onPressed: _onSubmit,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Styles.orange,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
                     ),
-                    const SizedBox(height: Styles.defaultSpacing),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: FilledButton(
-                            onPressed: _onSubmit,
-                            style: FilledButton.styleFrom(
-                              backgroundColor: Styles.orange,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                            ),
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                              child: Text(
-                                "Continuar",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Text(
+                      "Continuar",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
-                  ],
+                  ),
                 ),
               ),
             ],
           ),
-        ),
+        ],
+      ),
+    );
+  }
+
+  Form _form() {
+    return Form(
+      key: _formkey,
+      child: Column(
+        children: [
+          ArchFormField(
+            hintText: "Nome",
+            controller: _nameController,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Preencha o formulários antes de enviar-lo';
+              }
+
+              return null;
+            },
+          ),
+          const SizedBox(height: Styles.defaultSpacing),
+          ArchFormField(
+            hintText: "Email",
+            controller: _emailController,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Preencha o formulários antes de enviar-lo';
+              }
+
+              if (!value.isValidEmail()) {
+                return 'Email invalido';
+              }
+
+              return null;
+            },
+          ),
+          const SizedBox(height: Styles.defaultSpacing),
+          ArchFormField(
+            hintText: "Senha",
+            controller: _passwordController,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Preencha o formulários antes de enviar-lo';
+              }
+
+              return null;
+            },
+          ),
+        ],
       ),
     );
   }

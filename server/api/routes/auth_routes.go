@@ -52,7 +52,7 @@ func loginRoute(context echo.Context) error {
 
 	reqPassword := user.Password
 
-	foundUser, err := user.QueryUserByName(*internal_db, user.Name)
+	foundUser, err := user.QueryUserByEmail(*internal_db, user.Email)
 	if err != nil {
 		return context.JSON(http.StatusInternalServerError, lib.JsonResponse{Message: "Failed to query user data"})
 	}
@@ -60,6 +60,7 @@ func loginRoute(context echo.Context) error {
 	if !foundUser {
 		return context.JSON(http.StatusNotFound, lib.JsonResponse{Message: "User not found"})
 	}
+	fmt.Println(foundUser)
 
 	if user.Password != reqPassword {
 		return context.JSON(http.StatusUnauthorized, lib.JsonResponse{Message: "Invalid password"})
@@ -81,6 +82,15 @@ func registerRoute(context echo.Context) error {
 	user := new(models.User)
 	if err := context.Bind(user); err != nil {
 		return context.JSON(http.StatusBadRequest, lib.JsonResponse{Message: "Invalid request body"})
+	}
+
+	foundUser, err := user.QueryUserByEmail(*internal_db, user.Email)
+	if err != nil {
+		return context.JSON(http.StatusInternalServerError, lib.JsonResponse{Message: "Failed to query user data"})
+	}
+
+	if foundUser {
+		return context.JSON(http.StatusBadRequest, lib.JsonResponse{Message: "User already exists"})
 	}
 
 	id, err := user.Insert(*internal_db)

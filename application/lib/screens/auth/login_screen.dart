@@ -5,6 +5,7 @@ import 'package:application/modules/auth_modules.dart';
 import 'package:application/screens/auth/forgot_password_screen.dart';
 import 'package:application/screens/auth/register_screen.dart';
 import 'package:application/screens/home_screen.dart';
+import 'package:application/utils/extensions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -55,86 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: Styles.defaultSpacing * 4),
-              Expanded(
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          ArchFormField(
-                            controller: _emailController,
-                            hintText: "Email",
-                          ),
-                          const SizedBox(height: Styles.defaultSpacing),
-                          ArchFormField(
-                            controller: _passwordController,
-                            hintText: "Senha",
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => ForgotPasswordScreen(),
-                              ),
-                            ),
-                            child: const Text(
-                              "Esqueci minha senha",
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: Styles.orange,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          bottom: Styles.defaultSpacing * 2,
-                        ),
-                        child: Column(
-                          children: [
-                            const Text(
-                              "Ao continuar, você estará aceitando nossos termos e condições do usuário.",
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: Styles.defaultSpacing),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: FilledButton(
-                                    onPressed: _onSubmit,
-                                    style: FilledButton.styleFrom(
-                                      backgroundColor: Styles.orange,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                    ),
-                                    child: const Padding(
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 16),
-                                      child: Text(
-                                        "Entrar",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              _form(context),
             ],
           ),
         ),
@@ -142,7 +64,113 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _onSubmit() async {
+  Expanded _form(BuildContext context) {
+    return Expanded(
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                ArchFormField(
+                  inputType: TextInputType.emailAddress,
+                  controller: _emailController,
+                  hintText: "Email",
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Preencha o formulários antes de enviar-lo';
+                    }
+
+                    if (!value.isValidEmail()) {
+                      return 'Email invalido';
+                    }
+
+                    return null;
+                  },
+                ),
+                const SizedBox(height: Styles.defaultSpacing),
+                ArchFormField(
+                  inputType: TextInputType.visiblePassword,
+                  controller: _passwordController,
+                  hintText: "Senha",
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Preencha o formulários antes de enviar-lo';
+                    }
+
+                    return null;
+                  },
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const ForgotPasswordScreen(),
+                    ),
+                  ),
+                  child: const Text(
+                    "Esqueci minha senha",
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Styles.orange,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            _submitButton(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Padding _submitButton() {
+    return Padding(
+      padding: const EdgeInsets.only(
+        bottom: Styles.defaultSpacing * 2,
+      ),
+      child: Column(
+        children: [
+          const Text(
+            "Ao continuar, você estará aceitando nossos termos e condições do usuário.",
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: Styles.defaultSpacing),
+          Row(
+            children: [
+              Expanded(
+                child: FilledButton(
+                  onPressed: () async => await _onSubmit(),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Styles.orange,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Text(
+                      "Entrar",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _onSubmit() async {
     _formKey.currentState!.save();
     if (!_formKey.currentState!.validate()) {
       return;

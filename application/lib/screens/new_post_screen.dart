@@ -1,7 +1,10 @@
 import 'package:application/design/styles.dart';
 import 'package:application/modules/publications_modules.dart';
+import 'package:application/providers/auth_provider.dart';
+import 'package:application/screens/auth/login_screen.dart';
 import 'package:application/screens/home_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class NewPostScreen extends StatefulWidget {
   const NewPostScreen({super.key});
@@ -39,19 +42,30 @@ class _NewPostScreenState extends State<NewPostScreen> {
                   return;
                 }
 
+                final currentUser =
+                    Provider.of<AuthProvider>(context, listen: false)
+                        .currentUser;
+                if (currentUser == null) {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (_) => const LoginScreen(),
+                    ),
+                  );
+                }
+
+                assert(currentUser!.id != null);
+
                 final newPost = PostModel(
                   null,
                   _contentController.text,
                   _titleController.text,
                   true,
                   DateTime.now().toString(),
-                  2,
-                  0,
-                  0,
+                  currentUser!.id!,
                 );
 
-                final ok =
-                    await PublicationHandler.given(newPost).newPublication(2);
+                final ok = await PublicationHandler.given(newPost)
+                    .newPublication(currentUser.id!);
 
                 if (!context.mounted) {
                   return;

@@ -45,83 +45,87 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 ),
               ),
               const SizedBox(height: Styles.defaultSpacing * 4),
-              Expanded(
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          ArchFormField(
-                            controller: _emailController,
-                            hintText: "Email",
-                            borderSide: _emailSent
-                                ? const BorderSide(color: Colors.green)
-                                : null,
-                          ),
-                          _emailSent
-                              ? const Text("sent")
-                              : const SizedBox.shrink(),
-                          const SizedBox(height: Styles.defaultSpacing),
-                          _emailSent
-                              ? ArchFormField(
-                                  controller: _codeController,
-                                  hintText: "Código de verificação",
-                                )
-                              : const SizedBox.shrink(),
-                        ],
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          bottom: Styles.defaultSpacing * 2,
-                        ),
-                        child: Column(
-                          children: [
-                            const Text(
-                              "Ao continuar, você estará aceitando nossos termos e condições do usuário.",
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: Styles.defaultSpacing),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: FilledButton(
-                                    onPressed: _onSubmit,
-                                    style: FilledButton.styleFrom(
-                                      backgroundColor: Styles.orange,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                    ),
-                                    child: const Padding(
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 16),
-                                      child: Text(
-                                        "Entrar",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              _form(),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Expanded _form() {
+    return Expanded(
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                ArchFormField(
+                  controller: _emailController,
+                  hintText: "Email",
+                  borderSide:
+                      _emailSent ? const BorderSide(color: Colors.green) : null,
+                ),
+                _emailSent ? const Text("sent") : const SizedBox.shrink(),
+                const SizedBox(height: Styles.defaultSpacing),
+                _emailSent
+                    ? ArchFormField(
+                        controller: _codeController,
+                        hintText: "Código de verificação",
+                      )
+                    : const SizedBox.shrink(),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.only(
+                bottom: Styles.defaultSpacing * 2,
+              ),
+              child: _submitButton(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Column _submitButton() {
+    return Column(
+      children: [
+        const Text(
+          "Ao continuar, você estará aceitando nossos termos e condições do usuário.",
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: Styles.defaultSpacing),
+        Row(
+          children: [
+            Expanded(
+              child: FilledButton(
+                onPressed: _onSubmit,
+                style: FilledButton.styleFrom(
+                  backgroundColor: Styles.orange,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Text(
+                    "Entrar",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -160,8 +164,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         return;
       }
 
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => ChangePasswordScreen(_codeController.text, _userID),
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+        builder: (_) => ChangePasswordScreen(_codeController.text, _userID),
       ));
     } catch (error) {
       if (kDebugMode) {

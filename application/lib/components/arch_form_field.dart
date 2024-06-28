@@ -5,12 +5,12 @@ class ArchFormField extends StatelessWidget {
   final String? Function(String?)? validator;
   final BorderSide? borderSide;
   final TextEditingController controller;
-
+  final TextInputType? inputType;
   const ArchFormField({
     super.key,
     this.hintText,
     required this.controller,
-    this.validator, this.borderSide,
+    this.validator, this.borderSide, this.inputType,
   });
 
   @override
@@ -23,7 +23,7 @@ class ArchFormField extends StatelessWidget {
           borderSide: borderSide ?? const BorderSide()
         ),
       ),
-      keyboardType: TextInputType.emailAddress,
+      keyboardType: inputType,
       validator: validator,
       controller: controller,
     );
