@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}}</title>
+    <style>
+        :root {
+            --cor-laranja: #ff7f00; 
+            --cor-laranja-escuro: #e65c00;
+            --cor-cinza-claro: #f4f4f4;
+            --cor-cinza-escuro: #333;
+            --cor-fundo-container: #fff;
+            --cor-sombra: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--cor-cinza-claro);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: var(--cor-fundo-container);
+            border-radius: 8px;
+            box-shadow: 0 0 10px var(--cor-sombra);
+        }
+
+        h2 {
+            color: var(--cor-laranja); /* Cor laranja */
+            text-align: center;
+            margin-top: 0;
+        }
+
+        p {
+            color: var(--cor-cinza-escuro);
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .codigo {
+            font-size: 24px;
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>{{.Title}}</h2>
+        <p>Prezado(a) usuário(a),</p>
+        <p>Recebemos uma solicitação para recuperar sua senha. Utilize o código abaixo para prosseguir:</p>
+        <div class="codigo">{{.Code}}</div> 
+        <p>Se você não solicitou essa ação, pode ignorar este e-mail com segurança.</p>
+        <p>Obrigado!</p>
+    </div>
+</body>
+
+</html>

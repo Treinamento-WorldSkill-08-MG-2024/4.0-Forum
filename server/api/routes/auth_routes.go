@@ -60,7 +60,6 @@ func loginRoute(context echo.Context) error {
 	if !foundUser {
 		return context.JSON(http.StatusNotFound, lib.JsonResponse{Message: "User not found"})
 	}
-	fmt.Println(foundUser)
 
 	if user.Password != reqPassword {
 		return context.JSON(http.StatusUnauthorized, lib.JsonResponse{Message: "Invalid password"})
@@ -133,10 +132,21 @@ func forgotRoute(context echo.Context) error {
 	randomCode := token[:recuperationCodeBytesLength]
 
 	email := new(mailer.Email)
-	email.
-		SetBody(fmt.Sprintf("<html><head><title>Seu código de recuperação:</title></head><body><strong>%s</strong></body>", randomCode)).
+	err = email.
 		SetTo(user.Email).
-		SetSubject("Recuperação de senha")
+		SetSubject("Recuperação de senha").
+		BuildBody(struct {
+			Title string
+			Code  string
+		}{
+			Title: "Seu código de recuperação:",
+			Code:  randomCode,
+		})
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s", err)
+		return context.JSON(http.StatusInternalServerError, lib.ApiResponse{"message": "Failed to send email:"})
+	}
 
 	if err := email.Mail(); err != nil {
 		fmt.Fprintf(os.Stderr, "%s", err)

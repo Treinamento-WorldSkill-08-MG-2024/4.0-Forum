@@ -1,7 +1,10 @@
 package smtp
 
 import (
+	"bytes"
 	"errors"
+	"html/template"
+	"os"
 	"strings"
 
 	"github.com/gofor-little/env"
@@ -15,6 +18,26 @@ type Email struct {
 	to      string
 	body    string
 	subject string
+}
+
+func (e *Email) BuildBody(data any) error {
+	path, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	tmpl, err := template.ParseFiles(path + "/smtp/mail.html")
+	if err != nil {
+		return err
+	}
+
+	var tmplBuffer bytes.Buffer
+	if err := tmpl.Execute(&tmplBuffer, data); err != nil {
+		return err
+	}
+
+	e.SetBody(tmplBuffer.String())
+	return nil
 }
 
 func (e *Email) SetBody(body string) *Email {
