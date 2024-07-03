@@ -66,6 +66,11 @@ func UsersRouter(db *sql.DB, e *echo.Echo) {
 			return context.JSON(http.StatusInternalServerError, lib.JsonResponse{Message: "No user affected"})
 		}
 
-		return context.JSON(http.StatusOK, lib.ApiResponse{"message": "ok"})
+		profilePic := lib.SafeDerefComparable(user.ProfilePic)
+		if profilePic == nil {
+			return context.JSON(http.StatusInternalServerError, lib.JsonResponse{Message: "No user affected"})
+		}
+
+		return context.JSON(http.StatusOK, lib.ApiResponse{"message": profilePic})
 	})
 }

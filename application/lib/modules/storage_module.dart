@@ -11,17 +11,14 @@ class StorageHandler {
   final StorageOption _option;
   StorageHandler(this._option);
 
-  Future<String> uploadFile(File file) async {
+  Future<String> uploadFile(File file, String currentUserId) async {
     final endpoint = "${_option.name}/${file.uri}";
+    print(endpoint);
 
     if (_option == StorageOption.profile) {
-      final removed = await cleanupFiles(
-        endpoint
-            .replaceAll('///', '/')
-            .substring(0, endpoint.lastIndexOf("/") - 2),
-      );
-      if (removed.isEmpty) {
-        if (kDebugMode) {
+      final removed = await _cleanupFiles(endpoint);
+      if (kDebugMode) {
+        if (removed.isEmpty) {
           print("Nothing removed");
         }
       }
@@ -38,16 +35,22 @@ class StorageHandler {
     return path;
   }
 
-  Future<List<FileObject>> cleanupFiles(String from) async {
-    final files = await _from.list(path: from);
+  Future loadFile(String filePath) async {
+    final Uint8List file = await _from.download('${_option.name}/$filePath');
+    return file;
+  }
+
+  Future<List<FileObject>> _cleanupFiles(String from) async {
+    final path =
+        from.replaceAll('///', '/').substring(0, from.lastIndexOf("/") - 2);
+    final files = await _from.list(path: path);
     final objects = await _from.remove(
-      files.map((file) => "$from/${file.name}").toList(),
+      files.map((file) => "$path/${file.name}").toList(),
     );
     return objects;
   }
 
-  Future loadFile(String filePath) async {
-    final Uint8List file = await _from.download('${_option.name}/$filePath');
-    return file;
+  static fmtImageUrl(String realtiveUri) {
+    return 'https://grewcgxljbxprnaupekv.supabase.co/storage/v1/object/public/$realtiveUri';
   }
 }

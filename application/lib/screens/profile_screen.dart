@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:application/components/toats.dart';
 import 'package:application/design/styles.dart';
 import 'package:application/modules/auth_modules.dart';
+import 'package:application/modules/storage_module.dart';
 import 'package:application/providers/auth_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -17,10 +18,24 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  UserModel? _currentUser;
-
   final _imagePicker = ImagePicker();
+
+  UserModel? _currentUser;
   XFile? _image;
+
+  @override
+  void didChangeDependencies() {
+    _currentUser = null;
+    _image = null;
+    super.didChangeDependencies();
+  }
+
+  @override
+  void reassemble() {
+    _currentUser = null;
+    _image = null;
+    super.reassemble();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,10 +43,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Provider.of<AuthProvider>(context, listen: false).currentUser;
 
     return Scaffold(
+      appBar: AppBar(),
       body: SafeArea(
         child: Column(
           children: [
-            const CircleAvatar(),
+            CircleAvatar(
+              child: _currentUser?.profilePic != null
+                  ? Image.network(
+                      StorageHandler.fmtImageUrl(_currentUser!.profilePic!),
+                    )
+                  : null,
+            ),
             OutlinedButton(
               onPressed: () => showDialog(
                 context: context,
@@ -97,6 +119,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (kDebugMode) {
           print(error);
         }
+        setState(() => _image = null);
       }
     });
   }
@@ -107,26 +130,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   ) async {
     return showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          actions: [
-            TextButton(
-              onPressed: () {
-                onPick(ImageSource.camera);
-                Navigator.of(context).pop();
-              },
-              child: const Text("Camera"),
-            ),
-            TextButton(
-              onPressed: () {
-                onPick(ImageSource.gallery);
-                Navigator.of(context).pop();
-              },
-              child: const Text("Galeria"),
-            ),
-          ],
-        );
-      },
+      builder: (context) => Toasts.imageSourceDialog(context, onPick),
     );
   }
 
@@ -139,14 +143,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return;
     }
 
-    final ok = await UserHandler()
-        .uploadProfilePic(File(_image!.path), _currentUser!.id!);
+    final ok = await UserHandler().uploadProfilePic(
+      File(_image!.path),
+      _currentUser!.id!,
+      context: context,
+    );
     if (!ok) {
       if (kDebugMode) {
         print("Response not ok");
       }
     }
 
+    setState(() {
+      _currentUser = null;
+    });
     Toasts.successDialog("ok");
   }
 }

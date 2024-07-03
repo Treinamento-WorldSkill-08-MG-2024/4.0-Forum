@@ -7,15 +7,15 @@ import (
 )
 
 type Post struct {
-	ID            int       `json:"id" query:"ID"`
-	Title         string    `json:"title" query:"title"`
-	Images        []*string `json:"-" query:"-"`
-	Published     bool      `json:"published" query:"published"`
-	CreatedAt     string    `json:"created-at" query:"createdAt"`
-	Content       string    `json:"content" query:"content"`
-	AuthorID      int       `json:"author-id" query:"authorID"`
-	CommentsCount int64     `json:"comments-count"`
-	LikesCount    int64     `json:"likes-count"`
+	ID            int      `json:"id" query:"ID"`
+	Title         string   `json:"title" query:"title"`
+	Images        []string `json:"images" query:"-"`
+	Published     bool     `json:"published" query:"published"`
+	CreatedAt     string   `json:"created-at" query:"createdAt"`
+	Content       string   `json:"content" query:"content"`
+	AuthorID      int      `json:"author-id" query:"authorID"`
+	CommentsCount int64    `json:"comments-count"`
+	LikesCount    int64    `json:"likes-count"`
 }
 
 func (Post) Query(db *sql.DB, page int) ([]Post, error) {
@@ -25,6 +25,13 @@ func (Post) Query(db *sql.DB, page int) ([]Post, error) {
 	query := `SELECT * FROM post LIMIT ? OFFSET ?`
 	return queryFactory(db, query, func(p *Post, rows *sql.Rows) error {
 		if err := rows.Scan(&p.ID, &p.Title, &p.Published, &p.CreatedAt, &p.AuthorID, &p.Content); err != nil {
+			return err
+		}
+
+		err := p.queryImages(db)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "failed to query iamges")
+
 			return err
 		}
 
@@ -80,6 +87,16 @@ func (post Post) IsLiked(db *sql.DB, authorID int) (int64, error) {
 }
 
 func (post Post) Insert(db *sql.DB) (int64, error) {
+	imageQuery := `INSERT INTO images VALUES`
+	for range post.Images {
+		imageQuery += "(NULL, ?),"
+	}
+
+	affected, err := insertFactory(db, imageQuery, post.Images)
+	if err != nil {
+		return affected, err
+	}
+
 	query := `INSERT INTO post VALUES (NULL, ?, ?, ?, ?, ?)`
 	return insertFactory(db, query, post.Title, post.Published, post.CreatedAt, post.AuthorID, post.Content)
 }
@@ -113,4 +130,32 @@ func (post Post) countComments(db *sql.DB) (int64, error) {
 	}
 
 	return count, nil
+}
+
+func (post *Post) queryImages(db *sql.DB) error {
+	query := `SELECT uri FROM images WHERE postID=?`
+	rows, err := db.Query(query, post.ID)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to execute query: %v\n", err)
+		return err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var uri string
+		if err := rows.Scan(&uri); err != nil {
+			fmt.Fprintf(os.Stderr, "error scanning row: %s\n", err)
+
+			return err
+		}
+
+		post.Images = append(post.Images, uri)
+	}
+
+	if err := rows.Err(); err != nil {
+		return err
+	}
+
+	return nil
 }

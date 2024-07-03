@@ -25,6 +25,7 @@ class PostModel extends IPublicationModel {
   final bool published;
   final String createdAt;
   final int authorID;
+  final List<String>? images;
 
   PostModel(
     this._id,
@@ -32,7 +33,8 @@ class PostModel extends IPublicationModel {
     this.title,
     this.published,
     this.createdAt,
-    this.authorID, {
+    this.authorID,
+    this.images, {
     int commentsCount = 0,
     int likesCount = 0,
   }) : super(_id, _content, likesCount, commentsCount);
@@ -48,8 +50,9 @@ class PostModel extends IPublicationModel {
         'author-id': int authorID,
         'comments-count': int commentsCount,
         'likes-count': int likesCount,
+        'images': List<String>? images,
       } =>
-        PostModel(id, content, title, published, createdAt, authorID,
+        PostModel(id, content, title, published, createdAt, authorID, images,
             commentsCount: commentsCount, likesCount: likesCount),
       _ => throw const FormatException("Failed to convert json to post model")
     };
@@ -64,6 +67,7 @@ class PostModel extends IPublicationModel {
       'created-at': createdAt,
       'author-id': authorID,
       'content': _content,
+      'images': images,
     };
   }
 }
@@ -151,9 +155,9 @@ class PublicationHandler {
 
       throw Exception(bodyData);
     }
-
     assert(bodyData.containsKey("message"));
     final data = bodyData['message'] as List<dynamic>;
+    print(data);
     return data.map((item) => PostModel.fromJson(item)).toList();
   }
 

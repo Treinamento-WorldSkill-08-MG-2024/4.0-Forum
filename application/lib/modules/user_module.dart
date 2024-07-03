@@ -61,9 +61,13 @@ class UserHandler {
     return UserModel.fromJson(data);
   }
 
-  Future<bool> uploadProfilePic(File file, int id) async {
+  Future<bool> uploadProfilePic(
+    File file,
+    int id, {
+    required BuildContext context,
+  }) async {
     final uploaded =
-        await StorageHandler(StorageOption.profile).uploadFile(file);
+        await StorageHandler(StorageOption.profile).uploadFile(file, id.toString());
 
     if (uploaded.isEmpty) {
       throw Exception();
@@ -83,6 +87,18 @@ class UserHandler {
 
       throw Exception(bodyData);
     }
+
+    assert(bodyData.containsKey("message"));
+    final data = bodyData['message'] as String;
+    if (data.isEmpty) {
+      throw Exception("new profile pic should not bet empty");
+    }
+
+    if (!context.mounted) {
+      return false;
+    }
+
+    Provider.of<AuthProvider>(context, listen: false).authenticateUser();
 
     return true;
   }
