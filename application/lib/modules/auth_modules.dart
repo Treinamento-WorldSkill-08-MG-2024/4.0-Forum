@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:application/modules/storage_module.dart';
 import 'package:application/providers/auth_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -59,7 +60,6 @@ class AuthHandler {
     );
 
     final data = jsonDecode(response.body);
-    print(data);
 
     if (response.statusCode == HttpStatus.unauthorized) {
       return null;

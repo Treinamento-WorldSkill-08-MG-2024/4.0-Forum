@@ -46,4 +46,26 @@ func UsersRouter(db *sql.DB, e *echo.Echo) {
 
 		return context.JSON(http.StatusOK, lib.ApiResponse{"message": user})
 	})
+
+	e.PUT("/user", func(context echo.Context) error {
+		user := new(models.User)
+		if err := context.Bind(user); err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to bind user (user route): %d\n", err)
+
+			return context.JSON(http.StatusBadRequest, lib.JsonResponse{Message: "Invalid request body"})
+		}
+
+		affected, err := user.UpdateProfilePic(*internal_db)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s\n", err)
+
+			return context.JSON(http.StatusInternalServerError, lib.JsonResponse{Message: "Failed to update profile pic"})
+		}
+
+		if affected <= 0 {
+			return context.JSON(http.StatusInternalServerError, lib.JsonResponse{Message: "No user affected"})
+		}
+
+		return context.JSON(http.StatusOK, lib.ApiResponse{"message": "ok"})
+	})
 }

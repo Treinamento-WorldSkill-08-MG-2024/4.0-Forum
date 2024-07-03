@@ -4,7 +4,7 @@ import 'package:application/design/styles.dart';
 import 'package:application/modules/auth_modules.dart';
 import 'package:application/screens/auth/forgot_password_screen.dart';
 import 'package:application/screens/auth/register_screen.dart';
-import 'package:application/screens/home_screen.dart';
+import 'package:application/screens/home/home_screen.dart';
 import 'package:application/utils/extensions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -214,5 +214,12 @@ class _LoginScreenState extends State<LoginScreen> {
             "Houve um erro ao realizar o login: ${error.toString()}"),
       );
     }
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 }

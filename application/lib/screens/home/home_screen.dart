@@ -3,7 +3,7 @@ import 'package:application/components/home_app_bar.dart';
 import 'package:application/components/posts/post_card.dart';
 import 'package:application/components/profile_drawer.dart';
 import 'package:application/modules/publications_modules.dart';
-import 'package:application/screens/post_screen.dart';
+import 'package:application/screens/home/post_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 

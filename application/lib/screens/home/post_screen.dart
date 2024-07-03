@@ -3,7 +3,7 @@ import 'package:application/components/posts/comment_card.dart';
 import 'package:application/components/posts/post_card.dart';
 import 'package:application/design/styles.dart';
 import 'package:application/modules/publications_modules.dart';
-import 'package:application/screens/new_comment_screen.dart';
+import 'package:application/screens/home/new_comment_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 

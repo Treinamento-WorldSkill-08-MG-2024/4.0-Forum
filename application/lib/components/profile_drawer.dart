@@ -1,6 +1,7 @@
 import 'package:application/modules/auth_modules.dart';
 import 'package:application/providers/auth_provider.dart';
 import 'package:application/screens/auth/login_screen.dart';
+import 'package:application/screens/profile_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -27,6 +28,14 @@ class ProfileDrawer extends StatelessWidget {
       DrawerHeader(
         decoration: const BoxDecoration(color: Colors.orange),
         child: Text(currentUser.name),
+      ),
+      ListTile(
+        title: const Text("Ver perfil"),
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => const ProfileScreen(),
+          ),
+        ),
       ),
       ListTile(
         title: const Text("Logout"),

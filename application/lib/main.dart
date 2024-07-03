@@ -3,10 +3,18 @@ import 'package:application/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker_android/image_picker_android.dart';
+import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 
-void main() {
+Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+  final ImagePickerPlatform imagePickerImplementation =
+      ImagePickerPlatform.instance;
+  if (imagePickerImplementation is ImagePickerAndroid) {
+    imagePickerImplementation.useAndroidPhotoPicker = true;
+  }
 
   runApp(
     ChangeNotifierProvider(
@@ -19,7 +27,6 @@ void main() {
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
 
-  // Use provider for authentication
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(

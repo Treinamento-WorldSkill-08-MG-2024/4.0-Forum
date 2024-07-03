@@ -225,4 +225,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       });
     }
   }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _codeController.dispose();
+    super.dispose();
+  }
 }

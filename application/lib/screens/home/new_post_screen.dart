@@ -2,7 +2,7 @@ import 'package:application/design/styles.dart';
 import 'package:application/modules/publications_modules.dart';
 import 'package:application/providers/auth_provider.dart';
 import 'package:application/screens/auth/login_screen.dart';
-import 'package:application/screens/home_screen.dart';
+import 'package:application/screens/home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

@@ -11,22 +11,23 @@ import (
 )
 
 type User struct {
-	ID       int     `json:"id" query:"ID"`
-	Name     string  `json:"name" query:"name"`
-	Email    string  `json:"email" query:"email"`
-	Password string  `json:"password" query:"password"`
-	TempCode *string `json:"temp-code" query:"tempCode"`
+	ID         int     `json:"id" query:"ID"`
+	Name       string  `json:"name" query:"name"`
+	Email      string  `json:"email" query:"email"`
+	Password   string  `json:"password" query:"password"`
+	TempCode   *string `json:"temp-code" query:"tempCode"`
+	ProfilePic *string `json:"profile-pic" query:"profilePic"`
 }
 
 func (User) Query(db *sql.DB) ([]User, error) {
 	return queryFactory(db, "SELECT * FROM users", func(user *User, rows *sql.Rows) error {
-		return rows.Scan(&user.ID, &user.Name, &user.Password, &user.Email, &user.TempCode)
+		return rows.Scan(&user.ID, &user.Name, &user.Password, &user.Email, &user.TempCode, &user.ProfilePic)
 	})
 }
 
 func (user *User) QueryUserByName(db *sql.DB, name string) (bool, error) {
 	users, err := queryFactory(db, "SELECT * FROM users WHERE name=?", func(_ *User, r *sql.Rows) error {
-		return r.Scan(&user.ID, &user.Name, &user.Password, &user.Email, &user.TempCode)
+		return r.Scan(&user.ID, &user.Name, &user.Password, &user.Email, &user.TempCode, &user.ProfilePic)
 	}, name)
 
 	if err != nil {
@@ -46,7 +47,7 @@ func (user *User) QueryUserByName(db *sql.DB, name string) (bool, error) {
 
 func (user *User) QueryUserByEmail(db *sql.DB, email string) (bool, error) {
 	users, err := queryFactory(db, "SELECT * FROM users WHERE email=?", func(_ *User, r *sql.Rows) error {
-		return r.Scan(&user.ID, &user.Name, &user.Password, &user.Email, &user.TempCode)
+		return r.Scan(&user.ID, &user.Name, &user.Password, &user.Email, &user.TempCode, &user.ProfilePic)
 	}, email)
 
 	if err != nil {
@@ -66,7 +67,7 @@ func (user *User) QueryUserByEmail(db *sql.DB, email string) (bool, error) {
 
 func (user *User) QueryUserByID(db *sql.DB, id int) (bool, error) {
 	users, err := queryFactory(db, "SELECT * FROM users WHERE ID=?", func(_ *User, r *sql.Rows) error {
-		return r.Scan(&user.ID, &user.Name, &user.Password, &user.Email, &user.TempCode)
+		return r.Scan(&user.ID, &user.Name, &user.Password, &user.Email, &user.TempCode, &user.ProfilePic)
 	}, id)
 
 	if err != nil {
@@ -127,8 +128,27 @@ func (user User) UpdatePassword(db *sql.DB) (int64, error) {
 	return id, err
 }
 
+func (user User) UpdateProfilePic(db *sql.DB) (int64, error) {
+	query := `UPDATE users SET profilePic=? WHERE id=?`
+	updateResult, err := db.ExecContext(context.Background(), query, user.ProfilePic, user.ID)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to insert user: %s\n", err)
+
+		return -1, err
+	}
+
+	id, err := updateResult.RowsAffected()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to retrieve last inserted id: %s\n", err)
+
+		return -1, err
+	}
+
+	return id, err
+}
+
 func (user User) Insert(db *sql.DB) (int64, error) {
-	return insertFactory(db, `INSERT INTO users VALUES (NULL, ?, ?, ?, ?)`, user.Name, user.Password, user.Email, nil)
+	return insertFactory(db, `INSERT INTO users VALUES (NULL, ?, ?, ?, ?, ?)`, user.Name, user.Password, user.Email, nil, nil)
 }
 
 func (user User) Delete(db *sql.DB) (int64, error) {

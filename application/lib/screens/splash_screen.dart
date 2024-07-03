@@ -1,11 +1,13 @@
 import 'package:application/modules/auth_modules.dart';
 import 'package:application/providers/auth_provider.dart';
 import 'package:application/screens/auth/login_screen.dart';
-import 'package:application/screens/home_screen.dart';
+import 'package:application/screens/home/home_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -31,26 +33,33 @@ class _SplashScreenState extends State<SplashScreen> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     await authProvider.authenticateUser();
 
+    await dotenv.load(fileName: '.env');
+    assert(dotenv.env.containsKey('SUPABASE_KEY'));
+    assert(dotenv.env.containsKey('SUPABASE_URL'));
+
+    await Supabase.initialize(
+      anonKey: dotenv.env["SUPABASE_KEY"]!,
+      url: dotenv.env["SUPABASE_URL"]!,
+    );
+
     return authProvider.currentUser;
   }
 
   @override
   void initState() {
     _helloWorld()
-        .then(
-          (user) => user == null 
-            ? Navigator.of(context)
-              .pushReplacement(MaterialPageRoute(builder: (_) => const LoginScreen()))
-            : Navigator.of(context)
-              .pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()))
-        )
-        .catchError((error) { 
-          setState(() => _apiConnectionFailed = true);
+        .then((user) => user == null
+            ? Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (_) => const LoginScreen()))
+            : Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (_) => const HomeScreen())))
+        .catchError((error) {
+      setState(() => _apiConnectionFailed = true);
 
-          if (kDebugMode) {
-            print(error);
-          }
-        });
+      if (kDebugMode) {
+        print(error);
+      }
+    });
 
     super.initState();
   }
