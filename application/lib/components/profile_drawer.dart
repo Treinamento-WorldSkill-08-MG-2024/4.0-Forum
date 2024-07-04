@@ -14,6 +14,10 @@ class ProfileDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(builder: (context, value, child) {
       // value.redirectIfNotAuthenticated(context);
+      if (value.currentUser == null) {
+        return const AlertDialog();
+      }
+
       return Drawer(
         child: ListView(
           padding: EdgeInsets.zero,

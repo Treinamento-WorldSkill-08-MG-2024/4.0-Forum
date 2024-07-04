@@ -282,6 +282,10 @@ class PublicationHandler {
   Future<bool> newPublication(int currentUserID) async {
     assert(_publication != null, "Publication field must be not equal to null");
 
+    if (_publication is PostModel) {
+      print((_publication).images);
+    }
+
     final response = await _client.post(
       Uri.parse("$_kBaseURL/${_publication!.uriKeyword}"),
       headers: {'Content-Type': 'application/json'},

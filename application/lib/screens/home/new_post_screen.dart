@@ -2,11 +2,11 @@ import 'dart:io' show File;
 
 import 'package:application/components/toats.dart';
 import 'package:application/design/styles.dart';
-import 'package:application/modules/auth_modules.dart';
 import 'package:application/modules/publications_modules.dart';
 import 'package:application/modules/storage_module.dart';
 import 'package:application/providers/auth_provider.dart';
 import 'package:application/screens/auth/login_screen.dart';
+import 'package:application/screens/home/home_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -28,7 +28,6 @@ class _NewPostScreenState extends State<NewPostScreen> {
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
 
-  UserModel? _currentUser;
   List<XFile>? _images;
 
   void _setImageFileListFromFile(XFile? value) {
@@ -134,12 +133,13 @@ class _NewPostScreenState extends State<NewPostScreen> {
       );
     }
 
-    assert(currentUser!.id != null);
+    assert(currentUser?.id != null);
+    print(currentUser?.id);
 
     final storageHandler = StorageHandler(StorageOption.publicaton);
     for (final image in _images!) {
       final uploaded = await storageHandler.uploadFile(
-          File(image.path), _currentUser!.id!.toString());
+          File(image.path), currentUser!.id!.toString());
       print(uploaded);
       if (uploaded.isEmpty) {
         if (kDebugMode) {
@@ -161,12 +161,12 @@ class _NewPostScreenState extends State<NewPostScreen> {
       _images!.map((file) => file.path).toList(),
     );
 
-    // final ok =
-    //     await PublicationHandler.given(newPost).newPublication(currentUser.id!);
+    final ok =
+        await PublicationHandler.given(newPost).newPublication(currentUser.id!);
 
-    // if (!mounted) {
-    //   return;
-    // }
+    if (!mounted) {
+      return;
+    }
 
     // if (ok) {
     //   Navigator.of(context).pushReplacement(

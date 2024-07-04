@@ -87,18 +87,32 @@ func (post Post) IsLiked(db *sql.DB, authorID int) (int64, error) {
 }
 
 func (post Post) Insert(db *sql.DB) (int64, error) {
-	imageQuery := `INSERT INTO images VALUES`
-	for range post.Images {
-		imageQuery += "(NULL, ?),"
-	}
-
-	affected, err := insertFactory(db, imageQuery, post.Images)
-	if err != nil {
-		return affected, err
-	}
-
 	query := `INSERT INTO post VALUES (NULL, ?, ?, ?, ?, ?)`
-	return insertFactory(db, query, post.Title, post.Published, post.CreatedAt, post.AuthorID, post.Content)
+	newPostId, err := insertFactory(db, query, post.Title, post.Published, post.CreatedAt, post.AuthorID, post.Content)
+	if err != nil {
+		return newPostId, err
+	}
+
+	queryArgs := make([]interface{}, 0, len(post.Images)*2)
+
+	imageQuery := `INSERT INTO images VALUES`
+	for i, v := range post.Images {
+		queryArgs = append(queryArgs, newPostId)
+		queryArgs = append(queryArgs, v)
+
+		if i >= len(post.Images)-1 {
+			imageQuery += "(NULL, ?, ?);"
+			break
+		}
+		imageQuery += "(NULL, ?, ?),"
+	}
+
+	_, err = insertFactory(db, imageQuery, queryArgs...)
+	if err != nil {
+		return newPostId, err
+	}
+
+	return newPostId, nil
 }
 
 func (post Post) Delete(db *sql.DB) (int64, error) {

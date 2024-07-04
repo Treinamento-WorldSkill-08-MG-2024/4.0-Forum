@@ -12,8 +12,7 @@ class StorageHandler {
   StorageHandler(this._option);
 
   Future<String> uploadFile(File file, String currentUserId) async {
-    final endpoint = "${_option.name}/${file.uri}";
-    print(endpoint);
+    final endpoint = "${_option.name}/$currentUserId/${file.uri}";
 
     if (_option == StorageOption.profile) {
       final removed = await _cleanupFiles(endpoint);
