@@ -22,7 +22,7 @@ func (Post) Query(db *sql.DB, page int) ([]Post, error) {
 	const itemsCount int = 4
 	var offset int = page * itemsCount
 
-	query := `SELECT * FROM post LIMIT ? OFFSET ?`
+	query := `SELECT * FROM post ORDER BY ID DESC LIMIT ? OFFSET ?`
 	return queryFactory(db, query, func(p *Post, rows *sql.Rows) error {
 		if err := rows.Scan(&p.ID, &p.Title, &p.Published, &p.CreatedAt, &p.AuthorID, &p.Content); err != nil {
 			return err
@@ -52,6 +52,7 @@ func (Post) Query(db *sql.DB, page int) ([]Post, error) {
 		p.CommentsCount = commentsCount
 		p.LikesCount = likesCount
 
+		fmt.Println(*p)
 		return nil
 	}, itemsCount, offset)
 }
