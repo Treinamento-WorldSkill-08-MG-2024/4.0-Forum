@@ -30,10 +30,6 @@ class _NewPostScreenState extends State<NewPostScreen> {
 
   List<XFile>? _images;
 
-  void _setImageFileListFromFile(XFile? value) {
-    _images = value == null ? null : <XFile>[value];
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,7 +51,9 @@ class _NewPostScreenState extends State<NewPostScreen> {
                 try {
                   _onSubmit();
                 } catch (error) {
-                  print(error);
+                  if (kDebugMode) {
+                    print(error);
+                  }
                 }
               },
               child: const Text("Enviar"),
@@ -134,23 +132,21 @@ class _NewPostScreenState extends State<NewPostScreen> {
     }
 
     assert(currentUser?.id != null);
-    print(currentUser?.id);
+    final paths = List<String>.empty(growable: true);
 
     final storageHandler = StorageHandler(StorageOption.publicaton);
     for (final image in _images!) {
       final uploaded = await storageHandler.uploadFile(
           File(image.path), currentUser!.id!.toString());
-      print(uploaded);
       if (uploaded.isEmpty) {
         if (kDebugMode) {
           print("failed to upload file");
         }
         return;
       }
+      paths.add(uploaded);
     }
 
-    print(_images);
-    print(_images!.map((file) => file.path).toList());
     final newPost = PostModel(
       null,
       _contentController.text,
@@ -158,7 +154,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
       true,
       DateTime.now().toString(),
       currentUser!.id!,
-      _images!.map((file) => file.path).toList(),
+      paths,
     );
 
     final ok =
@@ -168,11 +164,11 @@ class _NewPostScreenState extends State<NewPostScreen> {
       return;
     }
 
-    // if (ok) {
-    //   Navigator.of(context).pushReplacement(
-    //     MaterialPageRoute(builder: (_) => const HomeScreen()),
-    //   );
-    // }
+    if (ok) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+      );
+    }
   }
 
   AlertDialog _submitImageDialog() {

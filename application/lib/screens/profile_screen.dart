@@ -41,7 +41,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     _currentUser ??=
         Provider.of<AuthProvider>(context, listen: false).currentUser;
-
+    
     return Scaffold(
       appBar: AppBar(),
       body: SafeArea(

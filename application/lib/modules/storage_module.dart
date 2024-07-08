@@ -11,9 +11,14 @@ class StorageHandler {
   final StorageOption _option;
   StorageHandler(this._option);
 
-  Future<String> uploadFile(File file, String currentUserId) async {
-    final endpoint = "${_option.name}/$currentUserId/${file.uri}";
-
+  Future<String> uploadFile(
+    File file,
+    String currentUserId, {
+    String? publicationId,
+  }) async {
+    final endpoint =
+        "${_option.name}/$currentUserId/${publicationId != null ? '$publicationId/' : ''}${file.uri}"
+            .replaceAll('///', '/');
     if (_option == StorageOption.profile) {
       final removed = await _cleanupFiles(endpoint);
       if (kDebugMode) {
@@ -43,6 +48,9 @@ class StorageHandler {
     final path =
         from.replaceAll('///', '/').substring(0, from.lastIndexOf("/") - 2);
     final files = await _from.list(path: path);
+    if (files.isEmpty) {
+      return List.empty();
+    }
     final objects = await _from.remove(
       files.map((file) => "$path/${file.name}").toList(),
     );

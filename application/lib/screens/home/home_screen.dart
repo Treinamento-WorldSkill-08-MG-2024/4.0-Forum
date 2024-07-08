@@ -34,6 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     _isLastPage = true;
     _pageNumber = 0;
+    print("init state");
     super.initState();
   }
 
@@ -42,6 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // TODO - Make new post appear on top
     _posts = List<PostModel>.empty(growable: true);
     _loadPosts();
+     print("init state");
     super.didChangeDependencies();
   }
 
@@ -53,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _loadPosts() {
     _isLoading = true;
-
+print("object");
     _postsFuture = _publicationHandler.loadFeed(_pageNumber);
     _postsFuture
         .then((posts) => setState(() {

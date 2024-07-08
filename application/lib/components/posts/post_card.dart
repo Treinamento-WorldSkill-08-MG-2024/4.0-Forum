@@ -2,6 +2,7 @@ import 'package:application/components/buttons/like_button.dart';
 import 'package:application/components/posts/post_header.dart';
 import 'package:application/design/styles.dart';
 import 'package:application/modules/publications_modules.dart';
+import 'package:application/modules/storage_module.dart';
 import 'package:application/screens/home/post_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -13,6 +14,8 @@ class PostCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(_post.images);
+
     return Card(
       elevation: .5,
       child: Padding(
@@ -35,6 +38,23 @@ class PostCard extends StatelessWidget {
                 const SizedBox(height: Styles.defaultSpacing),
               ],
             ),
+
+            _post.images.isNotEmpty
+                ? Column(
+                    children: [
+                      ListView.builder(
+                        itemCount: _post.images.length,
+                        physics: const NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemBuilder: (_, index) => Image.network(
+                          StorageHandler.fmtImageUrl(
+                            _post.images[index].toString(),
+                          ),
+                        ),
+                      )
+                    ],
+                  )
+                : const SizedBox.shrink(),
 
             // ANCHOR - Post Actions
             Row(
