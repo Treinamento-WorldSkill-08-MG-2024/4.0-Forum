@@ -136,7 +136,10 @@ class PostCard extends StatelessWidget {
                   ),
                 ),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    // TODO - Share using deep links
+                    // LINK - https://developer.android.com/training/app-links?hl=pt-br
+                  },
                   child: const Row(
                     children: [
                       Icon(Icons.share, color: Styles.orange),

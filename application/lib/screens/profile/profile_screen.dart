@@ -47,6 +47,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Styles.orange,
+        leading: const BackButton(color: Colors.white),
         actions: [
           IconButton(
             onPressed: () => showDialog(

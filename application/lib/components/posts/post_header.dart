@@ -47,7 +47,10 @@ class _PostHeaderState extends State<PostHeader> {
           },
         ),
         PopupMenuButton(
-          itemBuilder: (_) => [const PopupMenuItem(child: Text("item"))],
+          itemBuilder: (_) => [
+            const PopupMenuItem(child: Text("Apagar publicação")),
+            const PopupMenuItem(child: Text("Editar publicação")),
+          ],
         )
       ],
     );
