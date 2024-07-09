@@ -52,7 +52,6 @@ func (Post) Query(db *sql.DB, page int) ([]Post, error) {
 		p.CommentsCount = commentsCount
 		p.LikesCount = likesCount
 
-		fmt.Println(*p)
 		return nil
 	}, itemsCount, offset)
 }
@@ -94,12 +93,15 @@ func (post Post) Insert(db *sql.DB) (int64, error) {
 		return newPostId, err
 	}
 
+	if len(post.Images) <= 0 {
+		return newPostId, nil
+	}
+
 	queryArgs := make([]interface{}, 0, len(post.Images)*2)
 
 	imageQuery := `INSERT INTO images VALUES`
 	for i, v := range post.Images {
-		queryArgs = append(queryArgs, newPostId)
-		queryArgs = append(queryArgs, v)
+		queryArgs = append(queryArgs, newPostId, v)
 
 		if i >= len(post.Images)-1 {
 			imageQuery += "(NULL, ?, ?);"

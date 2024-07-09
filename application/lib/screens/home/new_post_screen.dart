@@ -135,7 +135,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
     final paths = List<String>.empty(growable: true);
 
     final storageHandler = StorageHandler(StorageOption.publicaton);
-    for (final image in _images!) {
+    for (final image in _images ?? List.empty()) {
       final uploaded = await storageHandler.uploadFile(
           File(image.path), currentUser!.id!.toString());
       if (uploaded.isEmpty) {

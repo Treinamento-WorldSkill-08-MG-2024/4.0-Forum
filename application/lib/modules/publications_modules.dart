@@ -52,7 +52,8 @@ class PostModel extends IPublicationModel {
         'likes-count': int likesCount,
         'images': dynamic images,
       } =>
-        PostModel(id, content, title, published, createdAt, authorID, images??List.empty(),
+        PostModel(id, content, title, published, createdAt, authorID,
+            images ?? List.empty(),
             commentsCount: commentsCount, likesCount: likesCount),
       _ => throw const FormatException("Failed to convert json to post model")
     };
@@ -147,7 +148,7 @@ class PublicationHandler {
     );
 
     final bodyData = jsonDecode(response.body);
-  print(bodyData);
+    print(bodyData);
     if (response.statusCode != 200) {
       if (kDebugMode) {
         print(bodyData);

@@ -14,8 +14,6 @@ class PostCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(_post.images);
-
     return Card(
       elevation: .5,
       child: Padding(
@@ -30,31 +28,56 @@ class PostCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: Styles.defaultSpacing),
-                Text(
-                  _post.title,
-                  style: const TextStyle(fontSize: 18),
-                ),
-                Text(_post.content),
-                const SizedBox(height: Styles.defaultSpacing),
+
+                // ANCHOR - Title
+                Navigator.of(context).canPop()
+                    ? Text(
+                        _post.title,
+                        style: const TextStyle(fontSize: 18),
+                      )
+                    : SizedBox(
+                        child: Text(
+                          _post.title,
+                          style: const TextStyle(fontSize: 18),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
               ],
             ),
 
-            _post.images.isNotEmpty
-                ? Column(
-                    children: [
-                      ListView.builder(
-                        itemCount: _post.images.length,
-                        physics: const NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemBuilder: (_, index) => Image.network(
-                          StorageHandler.fmtImageUrl(
-                            _post.images[index].toString(),
-                          ),
-                        ),
-                      )
-                    ],
-                  )
-                : const SizedBox.shrink(),
+            const SizedBox(height: Styles.defaultSpacing),
+
+            Builder(builder: (_) {
+              imageWidget(final url) =>
+                  Image.network(StorageHandler.fmtImageUrl(url));
+              final contentWidget = Text(_post.content);
+
+              if (!Navigator.of(context).canPop()) {
+                if (_post.images.isNotEmpty) {
+                  return imageWidget(_post.images[0].toString());
+                }
+
+                return contentWidget;
+              }
+
+              if (_post.images.isNotEmpty) {
+                return Column(
+                  children: [
+                    ListView.builder(
+                      itemCount: _post.images.length,
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemBuilder: (_, index) => imageWidget(
+                        _post.images[index].toString(),
+                      ),
+                    ),
+                    contentWidget,
+                  ],
+                );
+              }
+
+              return contentWidget;
+            }),
 
             // ANCHOR - Post Actions
             Row(
