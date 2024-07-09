@@ -1,5 +1,6 @@
 import 'dart:io' show File;
 
+import 'package:application/components/carousel.dart';
 import 'package:application/components/toats.dart';
 import 'package:application/design/styles.dart';
 import 'package:application/modules/publications_modules.dart';
@@ -12,8 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
-// FIXME - Fix state management.
-// TODO - Use current user properly
 class NewPostScreen extends StatefulWidget {
   const NewPostScreen({super.key});
 
@@ -28,15 +27,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
 
-  late PageController _pageController;
-
   List<XFile>? _images;
-
-  @override
-  void initState() {
-    _pageController =PageController(viewportFraction: .9);
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -201,23 +192,18 @@ class _NewPostScreenState extends State<NewPostScreen> {
                 ),
               ),
               if (_images != null)
-                SizedBox(
+                Carousel(
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height * .5,
-                  child: PageView.builder(
-                    controller: _pageController,
-                    pageSnapping: true,
-                    itemCount: _images!.length,
-                    itemBuilder: (_, index) => Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Image.file(
-                        File(_images![index].path),
-                      ),
+                  viewportFraction: .9,
+                  images: _images!,
+                  imageBuilder: (_, index) => Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Image.file(
+                      File(_images![index].path),
                     ),
                   ),
                 )
-              else
-                const SizedBox.shrink(),
             ],
           ),
         ),

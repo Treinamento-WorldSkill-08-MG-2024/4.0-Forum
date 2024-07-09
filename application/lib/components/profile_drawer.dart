@@ -1,3 +1,5 @@
+import 'package:application/components/profile_pic.dart';
+import 'package:application/design/styles.dart';
 import 'package:application/modules/auth_modules.dart';
 import 'package:application/providers/auth_provider.dart';
 import 'package:application/screens/auth/login_screen.dart';
@@ -29,8 +31,25 @@ class ProfileDrawer extends StatelessWidget {
   List<Widget> _drawerContent(BuildContext context, UserModel currentUser) {
     return [
       DrawerHeader(
-        decoration: const BoxDecoration(color: Colors.orange),
-        child: Text(currentUser.name),
+        decoration: const BoxDecoration(color: Styles.orange),
+        child: Column(
+          children: [
+            ProfilePic(
+              currentUser.profilePic,
+              width: MediaQuery.of(context).size.height * .1,
+              height: MediaQuery.of(context).size.height * .1,
+            ),
+            const SizedBox(height: Styles.defaultSpacing,),
+            Text(
+              currentUser.name,
+              style: const TextStyle(
+                fontSize: 24,
+                color: Styles.foreground,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
       ),
       ListTile(
         title: const Text("Ver perfil"),

@@ -100,7 +100,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                     const SizedBox(height: Styles.defaultSpacing),
-                    const SizedBox(height: Styles.defaultSpacing),
                   ],
                 ),
               ),
@@ -211,7 +210,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           if (!context.mounted) {
             return;
           }
-          
+
           Navigator.of(context).pop();
           showDialog(
             context: context,

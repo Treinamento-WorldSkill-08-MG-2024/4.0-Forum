@@ -1,4 +1,5 @@
 import 'package:application/components/buttons/like_button.dart';
+import 'package:application/components/carousel.dart';
 import 'package:application/components/posts/post_header.dart';
 import 'package:application/design/styles.dart';
 import 'package:application/modules/publications_modules.dart';
@@ -30,18 +31,19 @@ class PostCard extends StatelessWidget {
                 const SizedBox(height: Styles.defaultSpacing),
 
                 // ANCHOR - Title
-                Navigator.of(context).canPop()
-                    ? Text(
-                        _post.title,
-                        style: const TextStyle(fontSize: 18),
-                      )
-                    : SizedBox(
-                        child: Text(
-                          _post.title,
-                          style: const TextStyle(fontSize: 18),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
+                if (Navigator.of(context).canPop())
+                  Text(
+                    _post.title,
+                    style: const TextStyle(fontSize: 18),
+                  )
+                else
+                  SizedBox(
+                    child: Text(
+                      _post.title,
+                      style: const TextStyle(fontSize: 18),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
               ],
             ),
 
@@ -50,11 +52,25 @@ class PostCard extends StatelessWidget {
             Builder(builder: (_) {
               imageWidget(final url) =>
                   Image.network(StorageHandler.fmtImageUrl(url));
-              final contentWidget = Text(_post.content);
+              final contentWidget = Text(
+                _post.content,
+                style: const TextStyle(fontSize: 16),
+              );
 
               if (!Navigator.of(context).canPop()) {
                 if (_post.images.isNotEmpty) {
-                  return imageWidget(_post.images[0].toString());
+                  return Carousel(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height * .6,
+                    viewportFraction: 1,
+                    images: _post.images,
+                    imageBuilder: (_, index) => Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: imageWidget(
+                        _post.images[index].toString(),
+                      ),
+                    ),
+                  );
                 }
 
                 return contentWidget;
@@ -62,13 +78,18 @@ class PostCard extends StatelessWidget {
 
               if (_post.images.isNotEmpty) {
                 return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ListView.builder(
-                      itemCount: _post.images.length,
-                      physics: const NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      itemBuilder: (_, index) => imageWidget(
-                        _post.images[index].toString(),
+                    Carousel(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height * .6,
+                      viewportFraction: 1,
+                      images: _post.images,
+                      imageBuilder: (_, index) => Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: imageWidget(
+                          _post.images[index].toString(),
+                        ),
                       ),
                     ),
                     contentWidget,
