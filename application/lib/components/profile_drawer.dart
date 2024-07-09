@@ -1,7 +1,7 @@
 import 'package:application/modules/auth_modules.dart';
 import 'package:application/providers/auth_provider.dart';
 import 'package:application/screens/auth/login_screen.dart';
-import 'package:application/screens/profile_screen.dart';
+import 'package:application/screens/profile/profile_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -13,7 +13,6 @@ class ProfileDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(builder: (context, value, child) {
-      // value.redirectIfNotAuthenticated(context);
       if (value.currentUser == null) {
         return const AlertDialog();
       }

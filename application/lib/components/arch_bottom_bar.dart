@@ -28,7 +28,7 @@ class _ArchBottomBarState extends State<ArchBottomBar> {
             break;
 
           case 2:
-            Scaffold.of(context).openDrawer();
+            Scaffold.of(context).openEndDrawer();
             break;
 
           case _:

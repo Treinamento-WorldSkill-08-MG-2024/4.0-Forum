@@ -177,24 +177,17 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     try {
-      final ok = await _authHandler.login(
-        context,
-        _emailController.text,
-        _passwordController.text,
+      final ok = await Toasts.unwrapFutureInDialog(
+        () => _authHandler.login(
+          context,
+          _emailController.text,
+          _passwordController.text,
+        ),
+        context: context,
       );
-
       if (!ok) {
         throw Exception("Tente novamente mais tarde");
       }
-
-      if (!mounted) {
-        return;
-      }
-
-      await showDialog(
-        context: context,
-        builder: (_) => Toasts.successDialog("Logged In."),
-      );
 
       if (!mounted) {
         return;
@@ -206,6 +199,10 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (error) {
       if (kDebugMode) {
         print(error);
+      }
+
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
       }
 
       showDialog(

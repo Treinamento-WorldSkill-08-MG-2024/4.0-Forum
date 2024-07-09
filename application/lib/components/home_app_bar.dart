@@ -34,7 +34,7 @@ class _HomeAppBarState extends State<HomeAppBar> {
               const SizedBox(width: Styles.defaultSpacing),
               Builder(builder: (context) {
                 return IconButton(
-                  onPressed: () => Scaffold.of(context).openDrawer(),
+                  onPressed: () => Scaffold.of(context).openEndDrawer(),
                   icon: const Icon(Icons.person_2_outlined),
                 );
               })

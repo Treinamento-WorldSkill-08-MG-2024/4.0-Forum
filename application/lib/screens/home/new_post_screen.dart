@@ -28,7 +28,15 @@ class _NewPostScreenState extends State<NewPostScreen> {
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
 
+  late PageController _pageController;
+
   List<XFile>? _images;
+
+  @override
+  void initState() {
+    _pageController =PageController(viewportFraction: .9);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -157,8 +165,14 @@ class _NewPostScreenState extends State<NewPostScreen> {
       paths,
     );
 
-    final ok =
-        await PublicationHandler.given(newPost).newPublication(currentUser.id!);
+    if (!mounted) {
+      return;
+    }
+
+    final bool ok = await Toasts.unwrapFutureInDialog(
+      () => PublicationHandler.given(newPost).newPublication(currentUser.id!),
+      context: context,
+    );
 
     if (!mounted) {
       return;
@@ -175,27 +189,35 @@ class _NewPostScreenState extends State<NewPostScreen> {
     return AlertDialog(
       content: Form(
         child: SizedBox(
-          width: 800,
-          height: 800,
+          width: MediaQuery.of(context).size.width * .9,
+          height: MediaQuery.of(context).size.height * .6,
           child: Column(
             children: [
               OutlinedButton(
                 onPressed: () => _onEditProfilePick(context: context),
-                child: const Text("Selecionar Image"),
+                child: const Text(
+                  "Selecionar Imagem",
+                  style: TextStyle(color: Styles.orange),
+                ),
               ),
-              _images != null
-                  ? SizedBox(
-                      child: Expanded(
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: _images!.length,
-                          itemBuilder: (_, index) {
-                            return Image.file(File(_images![index].path));
-                          },
-                        ),
+              if (_images != null)
+                SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height * .5,
+                  child: PageView.builder(
+                    controller: _pageController,
+                    pageSnapping: true,
+                    itemCount: _images!.length,
+                    itemBuilder: (_, index) => Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Image.file(
+                        File(_images![index].path),
                       ),
-                    )
-                  : const SizedBox.shrink(),
+                    ),
+                  ),
+                )
+              else
+                const SizedBox.shrink(),
             ],
           ),
         ),
@@ -212,6 +234,13 @@ class _NewPostScreenState extends State<NewPostScreen> {
       try {
         final List<XFile> imageList = await _imagePicker.pickMultiImage();
         setState(() => _images = imageList);
+
+        if (!context.mounted) {
+          return;
+        }
+
+        Navigator.of(context).pop();
+        showDialog(context: context, builder: (_) => _submitImageDialog());
       } catch (error) {
         if (kDebugMode) {
           print(error);

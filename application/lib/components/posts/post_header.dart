@@ -1,3 +1,4 @@
+import 'package:application/components/profile_pic.dart';
 import 'package:application/design/styles.dart';
 import 'package:application/modules/auth_modules.dart';
 import 'package:application/modules/publications_modules.dart';
@@ -55,14 +56,10 @@ class _PostHeaderState extends State<PostHeader> {
   Widget _userInfoRow(UserModel user) {
     return Row(
       children: [
-        CircleAvatar(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(30.0),
-            child: Image.network(
-              'https://images.unsplash.com/photo-1712847333364-296afd7ba69a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w0Mzc0NDd8MXwxfGFsbHwxfHx8fHx8Mnx8MTcxODcxMjI1OHw&ixlib=rb-4.0.3&q=85&q=85&fmt=jpg&crop=entropy&cs=tinysrgb&w=450',
-              width: 120,
-            ),
-          ),
+        ProfilePic(
+          user.profilePic,
+          width: MediaQuery.of(context).size.width * .105,
+          height: MediaQuery.of(context).size.width * .105,
         ),
         const SizedBox(width: Styles.defaultSpacing),
         Text(

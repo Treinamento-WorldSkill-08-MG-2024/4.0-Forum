@@ -148,7 +148,6 @@ class PublicationHandler {
     );
 
     final bodyData = jsonDecode(response.body);
-    print(bodyData);
     if (response.statusCode != 200) {
       if (kDebugMode) {
         print(bodyData);
@@ -158,7 +157,6 @@ class PublicationHandler {
     }
     assert(bodyData.containsKey("message"));
     final data = bodyData['message'] as List<dynamic>;
-    print(data);
     return data.map((item) => PostModel.fromJson(item)).toList();
   }
 
