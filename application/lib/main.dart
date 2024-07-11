@@ -1,4 +1,5 @@
 import 'package:application/providers/auth_provider.dart';
+import 'package:application/screens/home/home_screen.dart';
 import 'package:application/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -29,8 +30,9 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: SplashScreen(),
+    return MaterialApp(
+      home: const SplashScreen(),
+      routes: {'/home': (_) => const HomeScreen()},
     );
   }
 }

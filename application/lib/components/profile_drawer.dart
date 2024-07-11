@@ -39,7 +39,7 @@ class ProfileDrawer extends StatelessWidget {
               width: MediaQuery.of(context).size.height * .1,
               height: MediaQuery.of(context).size.height * .1,
             ),
-            const SizedBox(height: Styles.defaultSpacing,),
+            const SizedBox(height: Styles.defaultSpacing / 2),
             Text(
               currentUser.name,
               style: const TextStyle(

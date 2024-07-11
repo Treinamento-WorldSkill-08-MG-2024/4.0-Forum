@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
+enum PublicationType { comment, post }
+
 sealed class IPublicationModel {
   late final String uriKeyword;
   final int? id;
@@ -17,7 +19,7 @@ sealed class IPublicationModel {
 
 class PostModel extends IPublicationModel {
   @override
-  get uriKeyword => "post";
+  get uriKeyword => PublicationType.post.name;
 
   final int? _id;
   final String _content;
@@ -75,7 +77,7 @@ class PostModel extends IPublicationModel {
 
 class CommentModel extends IPublicationModel {
   @override
-  get uriKeyword => "comment";
+  get uriKeyword => PublicationType.comment.name;
 
   final int? _id;
   final String _content;
@@ -158,6 +160,25 @@ class PublicationHandler {
     assert(bodyData.containsKey("message"));
     final data = bodyData['message'] as List<dynamic>;
     return data.map((item) => PostModel.fromJson(item)).toList();
+  }
+
+  Future<bool> deletePost() async {
+    assert(_publication != null);
+    final response = await _client.delete(
+      Uri.parse("$_kBaseURL/${_publication!.uriKeyword}/${_publication.id}"),
+      headers: _headers,
+    );
+
+    if (response.statusCode != HttpStatus.noContent) {
+      final bodyData = jsonDecode(response.body);
+      if (kDebugMode) {
+        print(bodyData);
+      }
+
+      throw Exception(bodyData);
+    }
+
+    return true;
   }
 
   Future<List<CommentModel>> loadCommentReplies(int commentID) async {

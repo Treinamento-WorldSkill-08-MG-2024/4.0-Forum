@@ -170,8 +170,9 @@ class _NewPostScreenState extends State<NewPostScreen> {
     }
 
     if (ok) {
-      Navigator.of(context).pushReplacement(
+      Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const HomeScreen()),
+        (_) => false,
       );
     }
   }

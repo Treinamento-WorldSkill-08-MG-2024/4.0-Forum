@@ -1,3 +1,4 @@
+import 'package:application/design/styles.dart';
 import 'package:application/screens/home/new_post_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -15,6 +16,7 @@ class _ArchBottomBarState extends State<ArchBottomBar> {
       selectedFontSize: 0,
       unselectedFontSize: 0,
       currentIndex: 0,
+      selectedItemColor: Styles.orange,
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: ""),
         BottomNavigationBarItem(icon: Icon(Icons.add), label: ""),

@@ -18,10 +18,17 @@ class Toasts {
     showDialog<T>(
       context: context,
       builder: (context) {
-        return const AlertDialog(
-          title: Text("Espero um momento..."),
-          content: CircularProgressIndicator(
-            color: Styles.orange,
+        return AlertDialog(
+          title: const Text("Espero um momento..."),
+          content: SizedBox(
+            width: MediaQuery.of(context).size.width * .4,
+            height: MediaQuery.of(context).size.width * .4,
+            child: const Padding(
+              padding: EdgeInsets.all(Styles.defaultSpacing),
+              child: CircularProgressIndicator(
+                color: Styles.orange,
+              ),
+            ),
           ),
         );
       },

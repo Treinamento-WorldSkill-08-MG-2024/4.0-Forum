@@ -2,8 +2,10 @@ import 'package:application/components/profile_pic.dart';
 import 'package:application/design/styles.dart';
 import 'package:application/modules/auth_modules.dart';
 import 'package:application/modules/publications_modules.dart';
+import 'package:application/providers/auth_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class PostHeader extends StatefulWidget {
   final PostModel _post;
@@ -46,12 +48,43 @@ class _PostHeaderState extends State<PostHeader> {
             return const CircularProgressIndicator();
           },
         ),
-        PopupMenuButton(
-          itemBuilder: (_) => [
-            const PopupMenuItem(child: Text("Apagar publicação")),
-            const PopupMenuItem(child: Text("Editar publicação")),
-          ],
-        )
+        Consumer<AuthProvider>(builder: (context, value, _) {
+          assert(value.currentUser != null);
+          
+          return PopupMenuButton(
+            itemBuilder: (_) => [
+              if (value.currentUser!.id == widget._post.authorID)
+                PopupMenuItem(
+                  child: const Text("Apagar publicação"),
+                  onTap: () async {
+                    try {
+                      final _ = await PublicationHandler.given(widget._post)
+                          .deletePost();
+                      if (!context.mounted) {
+                        return;
+                      }
+                      Navigator.of(context).popAndPushNamed('/home');
+                    } catch (error) {
+                      if (kDebugMode) {
+                        print(
+                            "FAILURE AT POST HEADER DELETE ITEM POPUP MENU:\n$error");
+                      }
+                    }
+                  },
+                ),
+              if (value.currentUser!.id == widget._post.authorID)
+                PopupMenuItem(
+                  child: const Text("Editar publicação"),
+                  onTap: () {},
+                )
+              else
+                PopupMenuItem(
+                  child: const Text("Denunciar"),
+                  onTap: () {},
+                )
+            ],
+          );
+        })
       ],
     );
   }
