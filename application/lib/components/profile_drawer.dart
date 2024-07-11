@@ -55,7 +55,7 @@ class ProfileDrawer extends StatelessWidget {
         title: const Text("Ver perfil"),
         onTap: () => Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (_) => const ProfileScreen(),
+            builder: (_) => ProfileScreen(profileID: currentUser.id!),
           ),
         ),
       ),

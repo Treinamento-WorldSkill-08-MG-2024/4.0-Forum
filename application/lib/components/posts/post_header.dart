@@ -4,6 +4,7 @@ import 'package:application/design/styles.dart';
 import 'package:application/modules/auth_modules.dart';
 import 'package:application/modules/publications_modules.dart';
 import 'package:application/providers/auth_provider.dart';
+import 'package:application/screens/profile/profile_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -75,11 +76,6 @@ class _PostHeaderState extends State<PostHeader> {
                       }
                     }
                   },
-                ),
-              if (value.currentUser!.id == widget._post.authorID)
-                PopupMenuItem(
-                  child: const Text("Editar publicação"),
-                  onTap: () {},
                 )
               else
                 PopupMenuItem(
@@ -96,10 +92,17 @@ class _PostHeaderState extends State<PostHeader> {
   Widget _userInfoRow(UserModel user) {
     return Row(
       children: [
-        ProfilePic(
-          user.profilePic,
-          width: MediaQuery.of(context).size.width * .105,
-          height: MediaQuery.of(context).size.width * .105,
+        GestureDetector(
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => ProfileScreen(profileID: user.id!),
+            ),
+          ),
+          child: ProfilePic(
+            user.profilePic,
+            width: MediaQuery.of(context).size.width * .105,
+            height: MediaQuery.of(context).size.width * .105,
+          ),
         ),
         const SizedBox(width: Styles.defaultSpacing),
         Text(

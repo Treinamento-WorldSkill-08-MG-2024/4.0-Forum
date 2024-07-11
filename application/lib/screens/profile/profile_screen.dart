@@ -13,7 +13,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final int _profileID;
+  const ProfileScreen({super.key, required int profileID})
+      : _profileID = profileID;
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -22,97 +24,61 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   final _imagePicker = ImagePicker();
 
-  UserModel? _currentUser;
+  UserModel? _user;
   XFile? _image;
   int selected = 0;
 
   @override
   void didChangeDependencies() {
-    _currentUser = null;
+    _user = null;
     _image = null;
     super.didChangeDependencies();
   }
 
   @override
   void reassemble() {
-    _currentUser = null;
+    _user = null;
     _image = null;
     super.reassemble();
   }
 
   @override
   Widget build(BuildContext context) {
-    _currentUser ??=
+    final currentUser =
         Provider.of<AuthProvider>(context, listen: false).currentUser;
+    _user = currentUser?.id == widget._profileID ? currentUser : null;
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Styles.orange,
         leading: const BackButton(color: Colors.white),
         actions: [
-          IconButton(
-            onPressed: () => showDialog(
-              context: context,
-              builder: (_) => _changeProfilePictureDialog(),
-            ),
-            icon: const Icon(Icons.edit, color: Colors.white),
-          ),
+          if (_user != null && _user?.id == widget._profileID)
+            IconButton(
+              onPressed: () => showDialog(
+                context: context,
+                builder: (_) => _changeProfilePictureDialog(),
+              ),
+              icon: const Icon(Icons.edit, color: Colors.white),
+            )
         ],
       ),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-              width: MediaQuery.of(context).size.width,
-              color: Styles.orange,
-              child: Padding(
-                padding: const EdgeInsets.all(Styles.defaultSpacing),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Builder(builder: (context) {
-                      if (_currentUser != null) {
-                        return GestureDetector(
-                          onTap: () => showDialog(
-                            context: context,
-                            builder: (_) => _changeProfilePictureDialog(),
-                          ),
-                          child: ProfilePic(
-                            _currentUser!.profilePic,
-                            width: MediaQuery.of(context).size.height * .1,
-                            height: MediaQuery.of(context).size.height * .1,
-                          ),
-                        );
-                      }
+            _profileHeader(),
 
-                      return ProfilePic(
-                        _currentUser!.profilePic,
-                        width: MediaQuery.of(context).size.height * .1,
-                        height: MediaQuery.of(context).size.height * .1,
-                      );
-                    }),
-                    const SizedBox(height: Styles.defaultSpacing),
-                    Text(
-                      _currentUser!.name,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        color: Styles.foreground,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: Styles.defaultSpacing),
-                  ],
-                ),
-              ),
-            ),
+            const SizedBox(height: Styles.defaultSpacing),
+
+            // ANCHOR - Views bar
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 TextButton(
                   onPressed: () {},
                   child: const Text("Publicações",
-                      style: TextStyle(fontSize: 16, color: Styles.black)),
+                      style: TextStyle(fontSize: 16, color: Styles.orange, fontWeight: FontWeight.bold)),
                 ),
                 TextButton(
                   onPressed: () {},
@@ -136,18 +102,102 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             // ANCHOR - Contents
             Builder(builder: (context) {
-              final currentUser =
-                  Provider.of<AuthProvider>(context, listen: false).currentUser;
-              if (currentUser == null || currentUser.id == null) {
-                return const Text(
-                    "Houve um erro ao carregar as publicações deste usuário");
+              if (_user?.id == widget._profileID) {
+                return PublicationsFeed(userID: _user?.id);
               }
 
-              return PublicationsFeed(userID: currentUser.id);
+              return FutureBuilder<UserModel>(
+                future: UserHandler().getUserData(widget._profileID),
+                builder: (_, snapshot) {
+                  if (snapshot.hasError) {
+                    return const Text(
+                        "Houve um erro ao carregar os dados do usário");
+                  }
+
+                  if (snapshot.hasData &&
+                      snapshot.connectionState == ConnectionState.done) {
+                    _user = snapshot.data!;
+
+                    return PublicationsFeed(
+                      userID: _user?.id,
+                    );
+                  }
+
+                  return const CircularProgressIndicator(color: Styles.orange);
+                },
+              );
             }),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _profileHeader() {
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      color: Styles.orange,
+      child: Padding(
+        padding: const EdgeInsets.all(Styles.defaultSpacing),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [_userDataConsumer()],
+        ),
+      ),
+    );
+  }
+
+  Consumer<AuthProvider> _userDataConsumer() {
+    return Consumer<AuthProvider>(
+      builder: (context, value, child) {
+        if (_user != null) {
+          return GestureDetector(
+            onTap: () => showDialog(
+              context: context,
+              builder: (_) => _changeProfilePictureDialog(),
+            ),
+            child: child!,
+          );
+        }
+
+        return FutureBuilder<UserModel>(
+          future: UserHandler().getUserData(widget._profileID),
+          builder: (_, snapshot) {
+            if (snapshot.hasError) {
+              return const Text("Houve um erro ao carregar os dados do usário");
+            }
+
+            if (snapshot.hasData &&
+                snapshot.connectionState == ConnectionState.done) {
+              _user = snapshot.data!;
+
+              return child!;
+            }
+
+            return const CircularProgressIndicator(color: Styles.orange);
+          },
+        );
+      },
+      child: Builder(builder: (_) {
+        return Column(
+          children: [
+            ProfilePic(
+              _user?.profilePic,
+              width: MediaQuery.of(context).size.height * .1,
+              height: MediaQuery.of(context).size.height * .1,
+            ),
+            const SizedBox(height: Styles.defaultSpacing),
+            Text(
+              _user?.name ?? 'loading',
+              style: const TextStyle(
+                fontSize: 24,
+                color: Styles.foreground,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        );
+      }),
     );
   }
 
@@ -182,9 +232,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const SizedBox(height: Styles.defaultSpacing),
               Builder(builder: (_) {
-                if (_currentUser?.profilePic != null && _image == null) {
+                if (_user?.profilePic != null && _image == null) {
                   return Image.network(
-                      StorageHandler.fmtImageUrl(_currentUser!.profilePic!));
+                    StorageHandler.fmtImageUrl(_user!.profilePic!),
+                  );
                 }
 
                 if (_image != null) {
@@ -246,7 +297,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _onSubmitPicture() async {
-    if (_image == null || _currentUser == null) {
+    if (_image == null || _user == null) {
       if (kDebugMode) {
         print("Either image or currentUser are null");
       }
@@ -256,7 +307,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     final ok = await UserHandler().uploadProfilePic(
       File(_image!.path),
-      _currentUser!.id!,
+      _user!.id!,
       context: context,
     );
     if (!ok) {
@@ -266,7 +317,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
 
     setState(() {
-      _currentUser = null;
+      _user = null;
     });
     Toasts.successDialog("ok");
   }

@@ -12,7 +12,9 @@ class HomeScreen extends StatelessWidget {
     return const Scaffold(
       appBar: HomeAppBar(),
       body: SafeArea(
-        child: Column(children: [PublicationsFeed()]),
+        child: Column(
+          children: [PublicationsFeed()],
+        ),
       ),
       endDrawer: ProfileDrawer(),
       bottomNavigationBar: ArchBottomBar(),
