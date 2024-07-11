@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:application/components/posts/publicatons_feed.dart';
 import 'package:application/components/profile_pic.dart';
 import 'package:application/components/toats.dart';
 import 'package:application/design/styles.dart';
@@ -134,8 +135,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: Styles.defaultSpacing),
 
             // ANCHOR - Contents
-            Builder(builder: (_) {
-              return const SizedBox.shrink();
+            Builder(builder: (context) {
+              final currentUser =
+                  Provider.of<AuthProvider>(context, listen: false).currentUser;
+              if (currentUser == null || currentUser.id == null) {
+                return const Text(
+                    "Houve um erro ao carregar as publicações deste usuário");
+              }
+
+              return PublicationsFeed(userID: currentUser.id);
             }),
           ],
         ),

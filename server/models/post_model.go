@@ -23,37 +23,15 @@ func (Post) Query(db *sql.DB, page int) ([]Post, error) {
 	var offset int = page * itemsCount
 
 	query := `SELECT * FROM post ORDER BY ID DESC LIMIT ? OFFSET ?`
-	return queryFactory(db, query, func(p *Post, rows *sql.Rows) error {
-		if err := rows.Scan(&p.ID, &p.Title, &p.Published, &p.CreatedAt, &p.AuthorID, &p.Content); err != nil {
-			return err
-		}
+	return postBuildWrapper(db, query, itemsCount, offset)
+}
 
-		err := p.queryImages(db)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "failed to query iamges")
+func (Post) QueryByUserID(db *sql.DB, page int, authorID int) ([]Post, error) {
+	const itemsCount int = 4
+	var offset int = page * itemsCount
 
-			return err
-		}
-
-		commentsCount, err := p.countComments(db)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "failed to count comments in post")
-
-			return err
-		}
-
-		likesCount, err := p.countLikes(db)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "failed to count comments in post")
-
-			return err
-		}
-
-		p.CommentsCount = commentsCount
-		p.LikesCount = likesCount
-
-		return nil
-	}, itemsCount, offset)
+	query := `SELECT * FROM post WHERE authorID=? ORDER BY ID DESC LIMIT ? OFFSET ?`
+	return postBuildWrapper(db, query, authorID, itemsCount, offset)
 }
 
 func (post Post) IsLiked(db *sql.DB, authorID int) (int64, error) {
@@ -175,4 +153,38 @@ func (post *Post) queryImages(db *sql.DB) error {
 	}
 
 	return nil
+}
+
+func postBuildWrapper(db *sql.DB, query string, args ...interface{}) ([]Post, error) {
+	return queryFactory(db, query, func(p *Post, rows *sql.Rows) error {
+		if err := rows.Scan(&p.ID, &p.Title, &p.Published, &p.CreatedAt, &p.AuthorID, &p.Content); err != nil {
+			return err
+		}
+
+		err := p.queryImages(db)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "failed to query iamges")
+
+			return err
+		}
+
+		commentsCount, err := p.countComments(db)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "failed to count comments in post")
+
+			return err
+		}
+
+		likesCount, err := p.countLikes(db)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "failed to count comments in post")
+
+			return err
+		}
+
+		p.CommentsCount = commentsCount
+		p.LikesCount = likesCount
+
+		return nil
+	}, args...)
 }

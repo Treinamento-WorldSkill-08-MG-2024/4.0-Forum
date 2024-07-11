@@ -13,6 +13,7 @@ import (
 
 func PublicationsRouter(db *sql.DB, e *echo.Echo) {
 	e.GET("/feed/:page", getFeedRoute)
+	e.GET("/feed/:id/:page", getUserFeed)
 	e.GET("/post/comments/:postId", getPostCommentsRoute)
 	e.GET("/comment/:id/replies", getCommentReplies)
 	e.GET("/post/liked/:postId/:userId", getIsPostLiked)
@@ -39,6 +40,28 @@ func getFeedRoute(context echo.Context) error {
 		fmt.Fprintf(os.Stderr, "could not perform posts query: %v\n", err)
 		return context.JSON(http.StatusInternalServerError, lib.ApiResponse{"message": "something went wrong"})
 	}
+
+	return context.JSON(http.StatusOK, lib.ApiResponse{"message": posts})
+}
+
+func getUserFeed(context echo.Context) error {
+	page, err := getIntParam(context, "page")
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, lib.JsonResponse{Message: "Invalid page parameter"})
+	}
+
+	id, err := getIntParam(context, "id")
+	if err != nil {
+		return context.JSON(http.StatusBadRequest, lib.JsonResponse{Message: "Invalid page parameter"})
+	}
+
+	posts, err := models.Post{}.QueryByUserID(*internal_db, page, id)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "could not perform posts query: %v\n", err)
+		return context.JSON(http.StatusInternalServerError, lib.ApiResponse{"message": "something went wrong"})
+	}
+
+	fmt.Println(posts)
 
 	return context.JSON(http.StatusOK, lib.ApiResponse{"message": posts})
 }

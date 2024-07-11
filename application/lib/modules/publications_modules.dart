@@ -143,9 +143,10 @@ class PublicationHandler {
     return PublicationHandler(publication: publication);
   }
 
-  Future<List<PostModel>> loadFeed(int page) async {
+  Future<List<PostModel>> loadFeed(int page, {int? userID}) async {
+    final userIdParam = userID != null ? "${userID.toString()}/" : '';
     final response = await http.Client().get(
-      Uri.parse("$_kBaseURL/feed/$page"),
+      Uri.parse("$_kBaseURL/feed/$userIdParam$page"),
       headers: _headers,
     );
 

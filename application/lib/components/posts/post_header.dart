@@ -1,4 +1,5 @@
 import 'package:application/components/profile_pic.dart';
+import 'package:application/components/toats.dart';
 import 'package:application/design/styles.dart';
 import 'package:application/modules/auth_modules.dart';
 import 'package:application/modules/publications_modules.dart';
@@ -50,7 +51,7 @@ class _PostHeaderState extends State<PostHeader> {
         ),
         Consumer<AuthProvider>(builder: (context, value, _) {
           assert(value.currentUser != null);
-          
+
           return PopupMenuButton(
             itemBuilder: (_) => [
               if (value.currentUser!.id == widget._post.authorID)
@@ -63,7 +64,10 @@ class _PostHeaderState extends State<PostHeader> {
                       if (!context.mounted) {
                         return;
                       }
-                      Navigator.of(context).popAndPushNamed('/home');
+                      Toasts.unwrapFutureInDialog(
+                        context: context,
+                        () => Navigator.of(context).popAndPushNamed('/home'),
+                      );
                     } catch (error) {
                       if (kDebugMode) {
                         print(
