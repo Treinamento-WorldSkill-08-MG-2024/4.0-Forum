@@ -281,6 +281,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (kDebugMode) {
           print(error);
         }
+        
         setState(() => _image = null);
       }
     });

@@ -47,6 +47,25 @@ func (comment Comment) Query(db *sql.DB, page int) ([]Comment, error) {
 	}, postID, commentID)
 }
 
+func (comment Comment) QueryByAuthorID(db *sql.DB, page int, authorID int) ([]Comment, error) {
+	query := `SELECT * FROM comment WHERE postID=?`
+	return queryFactory(db, query, func(c *Comment, rows *sql.Rows) error {
+		if err := rows.Scan(&c.ID, &c.Content, &c.Published, &c.CreatedAt, &c.AuthorID, &c.PostID, &c.CommentID); err != nil {
+			fmt.Fprintf(os.Stderr, "Failed scann: %s\n", err)
+			return err
+		}
+
+		likesCount, err := c.countLikes(db)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "failed o count likes in comment")
+			return err
+		}
+
+		c.LikesCount = likesCount
+		return nil
+	}, comment.ID)
+}
+
 func (comment Comment) Insert(db *sql.DB) (int64, error) {
 	query := `INSERT INTO comment VALUES (NULL, ?, ?, ?, ?, ?, ?)`
 	return insertFactory(db, query, comment.Content, comment.Published, "", comment.AuthorID, comment.PostID, comment.CommentID)
